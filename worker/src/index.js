@@ -25,7 +25,7 @@ export default {
 
     try {
       if (url.pathname === "/health" && request.method === "GET") {
-        return json({ ok: true, service: "davai-worker", time: Date.now() });
+        return json({ ok: true, service: "davai-worker", time: Date.now() }, 200, corsHeaders(request, env));
       }
 
       if (url.pathname === "/chat" && request.method === "POST") {
