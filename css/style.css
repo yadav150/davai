@@ -491,3 +491,46 @@ a { color: var(--accent); text-decoration: none; }
 }
 .msg-bubble.md th { background: var(--soft); }
 .msg-bubble.md a { color: var(--accent); text-decoration: underline; }
+/*--------------------------------*/
+.sources-panel {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.sources-head {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.sources-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.source-item {
+  font-size: 13px;
+  line-height: 1.45;
+}
+.source-link {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  color: var(--text);
+  text-decoration: none;
+}
+.source-link:hover .source-title { text-decoration: underline; }
+.source-title { font-weight: 500; }
+.source-domain {
+  font-size: 11px;
+  color: var(--muted);
+}
+.source-snippet {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
