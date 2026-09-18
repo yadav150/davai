@@ -326,7 +326,8 @@ async function sendCurrentMessage() {
   } finally {
     sending = false;
     sendBtn.disabled = false;
-    inputEl.focus();
+    // Do not refocus the textarea — the user may be reading the reply
+    // on mobile and auto-focus would reopen the keyboard.
   }
 }
 
