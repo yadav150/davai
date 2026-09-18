@@ -175,6 +175,27 @@ openSidebar.addEventListener("click", openDrawer);
 closeSidebar.addEventListener("click", closeDrawer);
 sidebarScrim.addEventListener("click", closeDrawer);
 
+/* ---------- Sidebar collapse (desktop) ---------- */
+const collapseSidebar = $("collapseSidebar");
+const COLLAPSE_KEY = "davai.sidebarCollapsed";
+
+function applyCollapsed(on) {
+  appView.classList.toggle("is-collapsed", !!on);
+  try { localStorage.setItem(COLLAPSE_KEY, on ? "1" : "0"); } catch {}
+}
+
+if (collapseSidebar) {
+  collapseSidebar.addEventListener("click", () => {
+    const next = !appView.classList.contains("is-collapsed");
+    applyCollapsed(next);
+  });
+}
+
+// Restore on load (desktop only — mobile drawer ignores this)
+try {
+  if (localStorage.getItem(COLLAPSE_KEY) === "1") applyCollapsed(true);
+} catch {}
+
 /* ---------- Theme toggle ---------- */
 // Temporary: stored locally until Settings module syncs it to Firebase.
 function applyTheme(theme) {
