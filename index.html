@@ -133,7 +133,85 @@
     </section>
   </div>
 
-    <script type="module" src="js/firebase.js"></script>
+  <!-- Settings modal -->
+  <div id="settingsModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="settingsTitle">
+    <div class="modal-scrim" data-close-settings></div>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2 id="settingsTitle">Settings</h2>
+        <button type="button" class="icon-btn" data-close-settings aria-label="Close settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
+        </button>
+      </header>
+
+      <div class="modal-body" id="settingsBody">
+        <div class="settings-row">
+          <label for="setTheme">Theme</label>
+          <select id="setTheme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label for="setLanguage">Language</label>
+          <select id="setLanguage">
+            <option value="auto">Auto (match my language)</option>
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="hi-en">Hinglish</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label for="setResponseStyle">Response style</label>
+          <select id="setResponseStyle">
+            <option value="balanced">Balanced</option>
+            <option value="concise">Concise</option>
+            <option value="detailed">Detailed</option>
+            <option value="exam">Exam-focused</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label for="setResponseLength">Response length</label>
+          <select id="setResponseLength">
+            <option value="short">Short</option>
+            <option value="medium">Medium</option>
+            <option value="long">Long</option>
+          </select>
+        </div>
+
+        <div class="settings-row toggle-row">
+          <label for="setMemory">Personal memory</label>
+          <input type="checkbox" id="setMemory" />
+        </div>
+
+        <div class="settings-row toggle-row">
+          <label for="setSearch">Web search</label>
+          <input type="checkbox" id="setSearch" />
+        </div>
+
+        <div class="settings-row">
+          <label for="setProvider">AI provider</label>
+          <select id="setProvider">
+            <option value="groq">Groq</option>
+            <option value="xai">xAI Grok</option>
+            <option value="openai">OpenAI</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label for="setModel">Model</label>
+          <input type="text" id="setModel" placeholder="openai/gpt-oss-120b" />
+        </div>
+
+        <p class="settings-note" id="settingsNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
   <script type="module" src="js/auth.js"></script>
   <script type="module" src="js/user.js"></script>
   <script type="module" src="js/conversations.js"></script>
