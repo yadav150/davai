@@ -1,0 +1,20 @@
+name = "davai-worker"
+main = "src/index.js"
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Free tier: 100,000 requests/day, no credit card.
+# Secrets (set via `wrangler secret put NAME`) — NEVER commit real values:
+#   GROQ_API_KEY
+#   TAVILY_API_KEY
+#   FIREBASE_PROJECT_ID
+#   FIREBASE_CLIENT_EMAIL
+#   FIREBASE_PRIVATE_KEY
+
+[vars]
+ALLOWED_ORIGINS = "https://yadav150.github.io"
+DEFAULT_MODEL = "openai/gpt-oss-120b"
+DEFAULT_PROVIDER = "groq"
+
+[observability]
+enabled = true
