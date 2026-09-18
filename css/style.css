@@ -277,6 +277,7 @@ a { color: var(--accent); text-decoration: none; }
 
 /* -------- Chat area -------- */
 .chat {
+  position: relative;
   display: flex; flex-direction: column;
   min-width: 0; min-height: 0;
 }
