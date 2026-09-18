@@ -6,6 +6,7 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import { ref, onValue, off, get } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 import { appendMessage, getConversation, updateConversationMeta } from "./conversations.js";
+import { renderMarkdown, enhanceCodeBlocks } from "./markdown.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -51,9 +52,18 @@ function buildMessageEl(m) {
   wrap.className = "msg " + (m.role === "user" ? "msg-user" : "msg-assistant");
   const bubble = document.createElement("div");
   bubble.className = "msg-bubble";
-  bubble.textContent = m.content == null ? "" : m.content;
+
+  if (m.role === "user") {
+    bubble.textContent = m.content == null ? "" : m.content;
+  } else {
+    bubble.classList.add("md");
+    bubble.innerHTML = renderMarkdown(m.content == null ? "" : m.content);
+    enhanceCodeBlocks(bubble);
+  }
+
   wrap.appendChild(bubble);
   return wrap;
+}
 }
 
 function renderMessages(list) {
