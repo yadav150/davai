@@ -1,59 +1,88 @@
-// Temporary diagnostic. Delete after use.
+// DavAI diagnostic — overwrite safe.
+// Loads via index.html script tag (module). Does not modify user data
+// except a single probe key that is removed immediately.
 
-import { auth, db } from "./firebase.js";
+import { app, auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import {
-  ref, get, set, remove
+  ref, get, set, remove, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-async function run() {
-  console.group("DavAI diagnostic");
+function line(label, value) {
+  console.log(label + ":", value);
+}
+function fail(label, e) {
+  console.error(label + " FAILED:", {
+    code: e && e.code,
+    message: e && e.message
+  });
+}
 
-  const user = auth.currentUser;
-  console.log("currentUser:", user ? {
-    uid: user.uid,
-    email: user.email,
-    provider: user.providerData.map(p => p.providerId)
-  } : null);
+function runChecks(user) {
+  console.group("DavAI diagnostic");
+  line("version", "diag-2");
+  line("projectId", app.options.projectId);
+  line("databaseURL", app.options.databaseURL);
+  line("authDomain", app.options.authDomain);
 
   if (!user) {
-    console.warn("No auth user. Sign in first, then run again.");
+    console.warn("AUTH: no current user. Sign in first, then refresh.");
     console.groupEnd();
     return;
   }
 
+  line("AUTH uid", user.uid);
+  line("AUTH email", user.email);
+  line("AUTH providers", user.providerData.map(p => p.providerId));
+
   const uid = user.uid;
 
-  try {
-    const snap = await get(ref(db, `users/${uid}/settings`));
-    console.log("read users/{uid}/settings:", snap.exists() ? snap.val() : "EMPTY");
-  } catch (e) {
-    console.error("read settings failed:", e.code || e.message, e);
-  }
+  (async () => {
+    try {
+      const snap = await get(ref(db, `users/${uid}`));
+      line(`read users/${uid}`, snap.exists() ? snap.val() : "EMPTY");
+    } catch (e) { fail(`read users/${uid}`, e); }
 
-  try {
-    const snap = await get(ref(db, `users/${uid}/profile`));
-    console.log("read users/{uid}/profile:", snap.exists() ? snap.val() : "EMPTY");
-  } catch (e) {
-    console.error("read profile failed:", e.code || e.message, e);
-  }
+    try {
+      const snap = await get(ref(db, "users"));
+      line("read users/ (whole node)", snap.exists() ? "DATA (unexpected)" : "EMPTY");
+    } catch (e) { fail("read users/ (whole node)", e); }
 
-  try {
-    await set(ref(db, `users/${uid}/settings/diagProbe`), Date.now());
-    console.log("write users/{uid}/settings/diagProbe: OK");
-    await remove(ref(db, `users/${uid}/settings/diagProbe`));
-    console.log("remove diagProbe: OK");
-  } catch (e) {
-    console.error("write settings failed:", e.code || e.message, e);
-  }
+    try {
+      await set(ref(db, `users/${uid}/settings/__diag__`), Date.now());
+      line("write users/{uid}/settings/__diag__", "OK");
+      await remove(ref(db, `users/${uid}/settings/__diag__`));
+      line("remove __diag__", "OK");
+    } catch (e) { fail("write probe", e); }
 
-  try {
-    await get(ref(db, "users/__not_my_uid__/settings"));
-    console.warn("rules too open: read of foreign uid succeeded (unexpected)");
-  } catch (e) {
-    console.log("foreign uid read blocked (expected):", e.code || e.message);
-  }
+    try {
+      await set(ref(db, `conversations/${uid}/__diag__`), { t: serverTimestamp() });
+      line("write conversations/{uid}/__diag__", "OK");
+      await remove(ref(db, `conversations/${uid}/__diag__`));
+      line("remove conversations probe", "OK");
+    } catch (e) { fail("write conversations probe", e); }
 
-  console.groupEnd();
+    try {
+      await get(ref(db, "users/__foreign_uid__/settings"));
+      console.warn("RULE CHECK: foreign uid read SUCCEEDED (rules too open)");
+    } catch (e) {
+      line("RULE CHECK foreign read blocked", e.code || e.message);
+    }
+
+    try {
+      const snap = await get(ref(db, "/"));
+      const val = snap.val();
+      if (val === null) line("read / (root)", "NULL");
+      else line("read / (root)", Object.keys(val));
+    } catch (e) { line("read / (root) blocked", e.code || e.message); }
+
+    console.groupEnd();
+  })();
 }
 
-run();
+let ran = false;
+onAuthStateChanged(auth, (user) => {
+  if (ran) return;
+  ran = true;
+  setTimeout(() => runChecks(auth.currentUser || user), 1500);
+});
