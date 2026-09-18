@@ -25,6 +25,7 @@ let statusEl = null;
 let streamHandle = null;
 let liveBubble = null;
 let liveText = "";
+let liveHasContent = false;
 
 /* ---------- Composer: autosize ---------- */
 function autosize() {
@@ -111,17 +112,31 @@ function beginAssistantBubble() {
   wrap.className = "msg msg-assistant";
   const bubble = document.createElement("div");
   bubble.className = "msg-bubble md";
+
+  // Thinking dots — removed as soon as the first token arrives.
+  const dots = document.createElement("div");
+  dots.className = "thinking-dots";
+  dots.innerHTML = "<span></span><span></span><span></span>";
+  bubble.appendChild(dots);
+
   wrap.appendChild(bubble);
   messagesEl.appendChild(wrap);
 
   liveBubble = bubble;
   liveText = "";
+  liveHasContent = false;
   scrollToBottom();
   return bubble;
 }
 
 function appendToLiveBubble(text) {
   if (!liveBubble) return;
+  if (!liveHasContent) {
+    // First token: drop the thinking dots.
+    const dots = liveBubble.querySelector(".thinking-dots");
+    if (dots) dots.remove();
+    liveHasContent = true;
+  }
   liveText += text;
   liveBubble.innerHTML = renderMarkdown(liveText);
   enhanceCodeBlocks(liveBubble);
