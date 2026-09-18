@@ -104,7 +104,9 @@ async function handleChat(request, env) {
   try {
     auth = await authenticate(request, env);
   } catch (e) {
-    return json({ error: "unauthorized", message: "Sign in required." }, 401, cors);
+    const reason = (e && e.message) ? e.message : "unknown";
+    console.error("auth failed:", reason);
+    return json({ error: "unauthorized", message: "Sign in required.", reason }, 401, cors);
   }
 
   let body;
@@ -217,8 +219,10 @@ async function handleSearch(request, env) {
 
   try {
     await authenticate(request, env);
-  } catch {
-    return json({ error: "unauthorized", message: "Sign in required." }, 401, cors);
+  } catch (e) {
+    const reason = (e && e.message) ? e.message : "unknown";
+    console.error("auth failed (search):", reason);
+    return json({ error: "unauthorized", message: "Sign in required.", reason }, 401, cors);
   }
 
   let body;
