@@ -11,6 +11,7 @@ import {
   signInWithGitHub,
   mapAuthError
 } from "./auth.js";
+import { ensureUserRecord, loadUserSettings } from "./user.js";
 
 /* ---------- DOM refs ---------- */
 const $ = (id) => document.getElementById(id);
@@ -189,8 +190,17 @@ themeToggle.addEventListener("click", () => {
 });
 
 /* ---------- Auth state → view switching ---------- */
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
+    try {
+      await ensureUserRecord(user);
+      const settings = await loadUserSettings(user.uid);
+      if (settings && settings.theme) {
+        applyTheme(settings.theme);
+      }
+    } catch (err) {
+      console.error("DavAI: user bootstrap failed", err);
+    }
     showView("app");
   } else {
     showView("auth");
