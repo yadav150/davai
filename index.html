@@ -99,6 +99,10 @@
       <nav id="convList" class="conv-list" aria-label="Conversation history"></nav>
 
       <footer class="sidebar-foot">
+        <button id="profileBtn" class="menu-item" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
+          <span>Profile</span>
+        </button>
         <button id="analyticsBtn" class="menu-item" type="button">
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5 21h3V10H5zM10.5 21h3V3h-3zM16 21h3v-8h-3z"/></svg>
           <span>Usage</span>
@@ -277,6 +281,100 @@
     </div>
   </div>
 
+  <!-- Profile modal -->
+  <div id="profileModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="profileTitle">
+    <div class="modal-scrim" data-close-profile></div>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2 id="profileTitle">Profile</h2>
+        <button type="button" class="icon-btn" data-close-profile aria-label="Close profile">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <!-- Avatar + name -->
+        <div class="profile-head">
+          <div class="profile-avatar" id="profileAvatar">
+            <span id="profileInitials">?</span>
+          </div>
+          <div class="profile-head-info">
+            <div class="profile-display-name" id="profileDisplayName">—</div>
+            <div class="profile-email muted" id="profileEmail">—</div>
+            <div class="profile-provider muted" id="profileProvider"></div>
+          </div>
+        </div>
+
+        <div class="profile-avatar-actions">
+          <button type="button" id="profileUploadBtn" class="btn btn-ghost">Upload photo</button>
+          <button type="button" id="profileRemoveBtn" class="btn btn-ghost is-hidden">Remove photo</button>
+          <input type="file" id="profileFileInput" accept="image/*" hidden />
+        </div>
+
+        <p class="settings-note is-error" id="profileError"></p>
+
+        <hr class="profile-divider" />
+
+        <!-- Editable info -->
+        <div class="settings-row">
+          <label for="profileNameInput">Display name</label>
+          <input type="text" id="profileNameInput" placeholder="Your name" />
+        </div>
+        <div class="settings-row">
+          <label for="profileBioInput">Bio</label>
+          <input type="text" id="profileBioInput" placeholder="Short bio" maxlength="140" />
+        </div>
+        <div class="profile-save-row">
+          <button type="button" id="profileSaveBtn" class="btn btn-primary">Save changes</button>
+          <span class="settings-note" id="profileSaveNote"></span>
+        </div>
+
+        <hr class="profile-divider" />
+
+        <!-- Change password (email users only) -->
+        <div id="profilePasswordSection" class="is-hidden">
+          <h3 class="profile-subhead">Change password</h3>
+          <div class="settings-row">
+            <label for="profileCurrentPwd">Current password</label>
+            <input type="password" id="profileCurrentPwd" autocomplete="current-password" />
+          </div>
+          <div class="settings-row">
+            <label for="profileNewPwd">New password</label>
+            <input type="password" id="profileNewPwd" autocomplete="new-password" />
+          </div>
+          <div class="profile-save-row">
+            <button type="button" id="profileChangePwdBtn" class="btn btn-ghost">Change password</button>
+            <span class="settings-note" id="profilePwdNote"></span>
+          </div>
+          <hr class="profile-divider" />
+        </div>
+
+        <!-- Danger zone -->
+        <div class="profile-danger">
+          <h3 class="profile-subhead danger">Danger zone</h3>
+
+          <div class="danger-row">
+            <div>
+              <div class="danger-title">Sign out all devices</div>
+              <div class="danger-desc muted">Ends every active session except this one.</div>
+            </div>
+            <button type="button" id="profileSignOutAllBtn" class="btn btn-ghost danger-btn">Sign out all</button>
+          </div>
+
+          <div class="danger-row">
+            <div>
+              <div class="danger-title">Delete account</div>
+              <div class="danger-desc muted">Permanently deletes your account and all data. This cannot be undone.</div>
+            </div>
+            <button type="button" id="profileDeleteBtn" class="btn btn-ghost danger-btn">Delete</button>
+          </div>
+
+          <p class="settings-note is-error" id="profileDangerNote"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="js/firebase.js"></script>
   <script type="module" src="js/auth.js"></script>
   <script type="module" src="js/user.js"></script>
@@ -292,5 +390,7 @@
   <script type="module" src="js/ui-memory.js"></script>
   <script type="module" src="js/analytics.js"></script>
   <script type="module" src="js/ui-analytics.js"></script>
+  <script type="module" src="js/cloudinary.js"></script>
+  <script type="module" src="js/ui-profile.js"></script>
 </body>
 </html>
