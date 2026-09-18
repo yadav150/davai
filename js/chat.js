@@ -1,6 +1,4 @@
-// DavAI — Chat composer + message rendering.
-// User messages are saved to Firebase. AI responses arrive in Step 10
-// via backend — no fake assistant content is written here.
+// DavAI — Chat composer + message rendering + streaming AI responses.
 
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
@@ -68,7 +66,6 @@ function buildMessageEl(m) {
   wrap.appendChild(bubble);
   return wrap;
 }
-}
 
 function renderMessages(list) {
   messagesEl.innerHTML = "";
@@ -96,6 +93,48 @@ function showStatus(text) {
   scrollToBottom();
 }
 
+function clearStatus() {
+  if (statusEl && statusEl.parentNode) statusEl.parentNode.removeChild(statusEl);
+  statusEl = null;
+}
+
+/* ---------- Live assistant bubble ---------- */
+function beginAssistantBubble() {
+  emptyStateEl.classList.add("is-hidden");
+  clearStatus();
+
+  const wrap = document.createElement("div");
+  wrap.className = "msg msg-assistant";
+  const bubble = document.createElement("div");
+  bubble.className = "msg-bubble md";
+  wrap.appendChild(bubble);
+  messagesEl.appendChild(wrap);
+
+  liveBubble = bubble;
+  liveText = "";
+  scrollToBottom();
+  return bubble;
+}
+
+function appendToLiveBubble(text) {
+  if (!liveBubble) return;
+  liveText += text;
+  liveBubble.innerHTML = renderMarkdown(liveText);
+  enhanceCodeBlocks(liveBubble);
+  scrollToBottom();
+}
+
+function finalizeLiveBubble(sources) {
+  if (!liveBubble) return;
+  if (Array.isArray(sources) && sources.length) {
+    window.dispatchEvent(new CustomEvent("davai:sources", {
+      detail: { cid: currentCid, messageId: null, sources }
+    }));
+  }
+  liveBubble = null;
+  liveText = "";
+}
+
 /* ---------- Open conversation ---------- */
 async function openConversation(cid) {
   if (!currentUid || !cid) return;
@@ -116,6 +155,7 @@ async function openConversation(cid) {
 
   const msgRef = ref(db, `conversations/${currentUid}/${cid}/messages`);
   const handler = onValue(msgRef, (snap) => {
+    if (liveBubble) return; // streaming in progress — don't clobber the DOM
     const rows = [];
     if (snap.exists()) {
       snap.forEach((c) => { rows.push({ id: c.key, ...c.val() }); });
@@ -128,6 +168,97 @@ async function openConversation(cid) {
 
   unsubscribeMessages = () => { off(msgRef, "value", handler); };
 }
+
+/* ---------- AI request via backend ---------- */
+async function requestAIResponse(userText) {
+  if (!currentUid || !currentCid) return;
+
+  if (!isBackendConfigured()) {
+    showStatus("AI backend is not connected yet.");
+    return;
+  }
+
+  const conv = await getConversation(currentUid, currentCid, { messageLimit: 20 });
+  const history = (conv && conv.messages ? conv.messages : []).map((m) => ({
+    role: m.role === "assistant" ? "assistant" : "user",
+    content: m.content || ""
+  }));
+
+  if (!history.length || history[history.length - 1].content !== userText) {
+    history.push({ role: "user", content: userText });
+  }
+
+  beginAssistantBubble();
+  stopBtn.classList.remove("is-hidden");
+  sendBtn.classList.add("is-hidden");
+
+  streamHandle = askAIStream(
+    { messages: history, search: "auto" },
+    {
+      onDelta: (t) => { appendToLiveBubble(t); },
+      onDone: async (meta) => {
+        stopBtn.classList.add("is-hidden");
+        sendBtn.classList.remove("is-hidden");
+        streamHandle = null;
+
+        const finalText = (meta && meta.content) ? meta.content : liveText;
+        finalizeLiveBubble(meta && meta.sources);
+
+        if (!finalText) {
+          showStatus("No response received.");
+          return;
+        }
+
+        try {
+          await appendMessage(currentUid, currentCid, {
+            role: "assistant",
+            content: finalText,
+            sources: meta && meta.sources ? meta.sources : [],
+            model: meta && meta.model ? meta.model : undefined,
+            tokens: meta && typeof meta.tokens === "number" ? meta.tokens : undefined
+          });
+
+          const metaSnap = await get(ref(db, `conversations/${currentUid}/${currentCid}/metadata`));
+          const existing = metaSnap.exists() ? metaSnap.val() : {};
+          const prevCount = typeof existing.messageCount === "number" ? existing.messageCount : 0;
+
+          await updateConversationMeta(currentUid, currentCid, {
+            lastMessage: finalText.slice(0, 80),
+            messageCount: prevCount + 1
+          });
+        } catch (err) {
+          console.error("failed to persist assistant message", err);
+          showStatus("Could not save response. It may be lost on refresh.");
+        }
+      },
+      onError: (err) => {
+        stopBtn.classList.add("is-hidden");
+        sendBtn.classList.remove("is-hidden");
+        streamHandle = null;
+        const msg = err && err.message ? err.message : "Request failed.";
+        showStatus(msg);
+      }
+    }
+  );
+}
+
+/* ---------- Stop button ---------- */
+stopBtn.addEventListener("click", () => {
+  if (streamHandle && typeof streamHandle.abort === "function") {
+    streamHandle.abort();
+    streamHandle = null;
+  }
+  stopBtn.classList.add("is-hidden");
+  sendBtn.classList.remove("is-hidden");
+  if (liveBubble) {
+    const partial = liveText;
+    finalizeLiveBubble([]);
+    if (partial && currentUid && currentCid) {
+      appendMessage(currentUid, currentCid, { role: "assistant", content: partial })
+        .catch((e) => console.error("save partial failed", e));
+    }
+  }
+});
 
 /* ---------- Send ---------- */
 async function sendCurrentMessage() {
@@ -178,148 +309,6 @@ async function sendCurrentMessage() {
     inputEl.focus();
   }
 }
-
-/* ---------- AI hook (Step 10 wires backend) ---------- */
-/* ---------- Live assistant bubble ---------- */
-function beginAssistantBubble() {
-  emptyStateEl.classList.add("is-hidden");
-  clearStatus();
-
-  const wrap = document.createElement("div");
-  wrap.className = "msg msg-assistant";
-  const bubble = document.createElement("div");
-  bubble.className = "msg-bubble md";
-  wrap.appendChild(bubble);
-  messagesEl.appendChild(wrap);
-
-  liveBubble = bubble;
-  liveText = "";
-  scrollToBottom();
-  return bubble;
-}
-
-function appendToLiveBubble(text) {
-  if (!liveBubble) return;
-  liveText += text;
-  liveBubble.innerHTML = renderMarkdown(liveText);
-  enhanceCodeBlocks(liveBubble);
-  scrollToBottom();
-}
-
-function finalizeLiveBubble(sources) {
-  if (!liveBubble) return;
-  if (Array.isArray(sources) && sources.length) {
-    window.dispatchEvent(new CustomEvent("davai:sources", {
-      detail: { cid: currentCid, messageId: null, sources }
-    }));
-  }
-  liveBubble = null;
-  liveText = "";
-}
-
-function clearStatus() {
-  if (statusEl && statusEl.parentNode) statusEl.parentNode.removeChild(statusEl);
-  statusEl = null;
-}
-
-/* ---------- AI request via backend ---------- */
-async function requestAIResponse(userText) {
-  if (!currentUid || !currentCid) return;
-
-  if (!isBackendConfigured()) {
-    showStatus("AI backend is not connected yet.");
-    return;
-  }
-
-  // Build context: last N messages from this conversation.
-  const conv = await getConversation(currentUid, currentCid, { messageLimit: 20 });
-  const history = (conv && conv.messages ? conv.messages : []).map((m) => ({
-    role: m.role === "assistant" ? "assistant" : "user",
-    content: m.content || ""
-  }));
-
-  // Ensure the newest user message is included even if not yet visible.
-  if (!history.length || history[history.length - 1].content !== userText) {
-    history.push({ role: "user", content: userText });
-  }
-
-  beginAssistantBubble();
-  stopBtn.classList.remove("is-hidden");
-  sendBtn.classList.add("is-hidden");
-
-  let aborted = false;
-
-  streamHandle = askAIStream(
-    { messages: history, search: "auto" },
-    {
-      onDelta: (t) => { appendToLiveBubble(t); },
-      onDone: async (meta) => {
-        stopBtn.classList.add("is-hidden");
-        sendBtn.classList.remove("is-hidden");
-        streamHandle = null;
-
-        const finalText = (meta && meta.content) ? meta.content : liveText;
-        finalizeLiveBubble(meta && meta.sources);
-
-        if (!finalText) {
-          showStatus("No response received.");
-          return;
-        }
-
-        try {
-          await appendMessage(currentUid, currentCid, {
-            role: "assistant",
-            content: finalText,
-            sources: meta && meta.sources ? meta.sources : [],
-            model: meta && meta.model ? meta.model : undefined,
-            tokens: meta && typeof meta.tokens === "number" ? meta.tokens : undefined
-          });
-
-          const metaSnap = await get(ref(db, `conversations/${currentUid}/${currentCid}/metadata`));
-          const existing = metaSnap.exists() ? metaSnap.val() : {};
-          const prevCount = typeof existing.messageCount === "number" ? existing.messageCount : 0;
-
-          await updateConversationMeta(currentUid, currentCid, {
-            lastMessage: finalText.slice(0, 80),
-            messageCount: prevCount + 1
-          });
-        } catch (err) {
-          console.error("failed to persist assistant message", err);
-          showStatus("Could not save response. It may be lost on refresh.");
-        }
-      },
-      onError: (err) => {
-        stopBtn.classList.add("is-hidden");
-        sendBtn.classList.remove("is-hidden");
-        streamHandle = null;
-        const msg = err && err.message ? err.message : "Request failed.";
-        showStatus(msg);
-      }
-    }
-  );
-
-  // Abort handling is exposed through stopBtn click below.
-  streamHandle._onAbort = () => { aborted = true; };
-  void aborted;
-}
-
-/* ---------- Stop button ---------- */
-stopBtn.addEventListener("click", () => {
-  if (streamHandle && typeof streamHandle.abort === "function") {
-    streamHandle.abort();
-    streamHandle = null;
-  }
-  stopBtn.classList.add("is-hidden");
-  sendBtn.classList.remove("is-hidden");
-  if (liveBubble) {
-    const partial = liveText;
-    finalizeLiveBubble([]);
-    if (partial && currentUid && currentCid) {
-      appendMessage(currentUid, currentCid, { role: "assistant", content: partial })
-        .catch((e) => console.error("save partial failed", e));
-    }
-  }
-});
 
 /* ---------- Event from ui-conversations ---------- */
 window.addEventListener("davai:open-conversation", (e) => {
