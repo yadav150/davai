@@ -6,6 +6,7 @@ import { ref, onValue, off, get } from "https://www.gstatic.com/firebasejs/12.17
 import { appendMessage, getConversation, updateConversationMeta } from "./conversations.js";
 import { renderMarkdown, enhanceCodeBlocks } from "./markdown.js";
 import { askAIStream, isBackendConfigured } from "./backend.js";
+import { attachSourcesToBubble } from "./ui-sources.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -61,6 +62,9 @@ function buildMessageEl(m) {
     bubble.classList.add("md");
     bubble.innerHTML = renderMarkdown(m.content == null ? "" : m.content);
     enhanceCodeBlocks(bubble);
+    if (Array.isArray(m.sources) && m.sources.length) {
+      attachSourcesToBubble(bubble, m.sources);
+    }
   }
 
   wrap.appendChild(bubble);
@@ -127,6 +131,7 @@ function appendToLiveBubble(text) {
 function finalizeLiveBubble(sources) {
   if (!liveBubble) return;
   if (Array.isArray(sources) && sources.length) {
+    attachSourcesToBubble(liveBubble, sources);
     window.dispatchEvent(new CustomEvent("davai:sources", {
       detail: { cid: currentCid, messageId: null, sources }
     }));
