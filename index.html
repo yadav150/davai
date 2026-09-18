@@ -89,6 +89,9 @@
       <nav id="convList" class="conv-list" aria-label="Conversation history"></nav>
 
       <footer class="sidebar-foot">
+        <button id="analyticsBtn" class="menu-item" type="button">
+          <span>Usage</span>
+        </button>
         <button id="memoryBtn" class="menu-item" type="button">
           <span>Memory</span>
         </button>
@@ -241,6 +244,28 @@
         <div class="memory-foot">
           <button type="button" id="memClearBtn" class="btn btn-ghost">Clear all</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics modal -->
+  <div id="analyticsModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="analyticsTitle">
+    <div class="modal-scrim" data-close-analytics></div>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2 id="analyticsTitle">Usage</h2>
+        <button type="button" class="icon-btn" data-close-analytics aria-label="Close analytics">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <div id="analyticsError" class="settings-note is-error"></div>
+
+        <div class="analytics-grid" id="analyticsGrid"></div>
+
+        <h3 class="analytics-subhead">Last 14 days</h3>
+        <div id="analyticsDaily" class="analytics-daily"></div>
       </div>
     </div>
   </div>
