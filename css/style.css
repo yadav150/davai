@@ -534,3 +534,70 @@ a { color: var(--accent); text-decoration: none; }
   font-size: 12px;
   color: var(--muted);
 }
+/*------------------------------*/
+/* -------- Modal -------- */
+.modal {
+  position: fixed; inset: 0;
+  z-index: 80;
+  display: grid; place-items: center;
+  padding: 20px;
+}
+.modal-scrim {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.55);
+}
+.modal-card {
+  position: relative;
+  width: 100%; max-width: 460px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  max-height: 90dvh;
+  display: flex; flex-direction: column;
+}
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.modal-body {
+  padding: 14px 16px 18px;
+  overflow-y: auto;
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.settings-row label { font-size: 13px; color: var(--text); }
+.settings-row select,
+.settings-row input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  outline: none;
+}
+.settings-row select:focus,
+.settings-row input[type="text"]:focus { border-color: var(--accent); }
+
+.toggle-row input[type="checkbox"] {
+  justify-self: end;
+  width: 18px; height: 18px;
+  accent-color: var(--accent);
+}
+
+.settings-note {
+  min-height: 16px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.settings-note.is-error { color: var(--danger); }
