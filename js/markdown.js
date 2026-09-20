@@ -1,74 +1,68 @@
-// DavAI — Markdown renderer for AI responses.
-// marked parses markdown, DOMPurify sanitizes the HTML.
-// Raw AI HTML is never inserted into the DOM without sanitization.
+// DavAI — markdown renderer.
+// marked parses, DOMPurify sanitizes. AI content NEVER touches the DOM
+// without going through renderMarkdown().
 
-import { marked } from "https://cdn.jsdelivr.net/npm/marked@12.0.2/lib/marked.esm.js";
-import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.es.mjs";
+import { marked } from "https://cdn.jsdelivr.net/npm/marked@12.0.2/+esm";
+import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify@3.1.6/+esm";
 
 marked.setOptions({
   gfm: true,
-  breaks: true,
-  headerIds: false,
-  mangle: false
+  breaks: false,
+  pedantic: false
 });
 
-const PURIFY_CONFIG = {
-  ALLOWED_TAGS: [
-    "p", "br", "hr", "strong", "em", "del", "blockquote",
-    "h1", "h2", "h3", "h4", "h5", "h6",
-    "ul", "ol", "li",
-    "pre", "code",
-    "table", "thead", "tbody", "tr", "th", "td",
-    "a", "span"
-  ],
-  ALLOWED_ATTR: ["href", "title", "target", "rel", "class"],
-  ALLOW_DATA_ATTR: false,
-  FORBID_TAGS: ["style", "script", "iframe", "object", "embed", "form", "input"],
-  FORBID_ATTR: ["style", "onerror", "onload", "onclick"]
-};
+const ALLOWED_TAGS = [
+  "a","p","br","hr","strong","em","del","code","pre","blockquote",
+  "ul","ol","li","h1","h2","h3","h4","h5","h6",
+  "table","thead","tbody","tr","th","td",
+  "span","div","sup","sub"
+];
 
-// Render markdown → sanitized HTML string.
+const ALLOWED_ATTR = [
+  "href","title","target","rel","class","colspan","rowspan","align"
+];
+
 export function renderMarkdown(text) {
   if (!text) return "";
-  const rawHtml = marked.parse(String(text));
-  const safe = DOMPurify.sanitize(rawHtml, PURIFY_CONFIG);
-  return forceSafeLinks(safe);
-}
-
-// Ensure external links open safely.
-function forceSafeLinks(html) {
-  const tpl = document.createElement("template");
-  tpl.innerHTML = html;
-  tpl.content.querySelectorAll("a").forEach((a) => {
-    a.setAttribute("target", "_blank");
-    a.setAttribute("rel", "noopener noreferrer");
+  const raw = marked.parse(String(text));
+  return DOMPurify.sanitize(raw, {
+    ALLOWED_TAGS,
+    ALLOWED_ATTR,
+    ALLOW_DATA_ATTR: false,
+    FORBID_TAGS: ["script","style","iframe","object","embed","form","input","button"],
+    FORBID_ATTR: ["onerror","onload","onclick","onmouseover","onfocus"]
   });
-  return tpl.innerHTML;
 }
 
-// After inserting rendered HTML into the DOM, add copy buttons to code blocks.
-export function enhanceCodeBlocks(root) {
-  if (!root) return;
-  root.querySelectorAll("pre > code").forEach((codeEl) => {
+export function enhanceCodeBlocks(container) {
+  if (!container) return;
+  container.querySelectorAll("pre > code").forEach((codeEl) => {
     const pre = codeEl.parentElement;
-    if (pre.querySelector(".code-copy")) return;
+    if (!pre || pre.dataset.enhanced === "1") return;
+    pre.dataset.enhanced = "1";
 
-    pre.classList.add("code-block");
+    const lang = (codeEl.className.match(/language-([\w-]+)/) || [])[1] || "";
+    const wrap = document.createElement("div");
+    wrap.className = "code-block";
 
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "code-copy";
-    btn.textContent = "Copy";
-    btn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(codeEl.textContent);
-        btn.textContent = "Copied";
-        setTimeout(() => { btn.textContent = "Copy"; }, 1200);
-      } catch {
-        btn.textContent = "Failed";
-        setTimeout(() => { btn.textContent = "Copy"; }, 1200);
-      }
-    });
-    pre.appendChild(btn);
+    const head = document.createElement("div");
+    head.className = "code-head";
+
+    const label = document.createElement("span");
+    label.className = "code-lang";
+    label.textContent = lang || "code";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "code-copy";
+    copyBtn.setAttribute("data-copy-code", "1");
+    copyBtn.textContent = "Copy";
+
+    head.appendChild(label);
+    head.appendChild(copyBtn);
+
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(head);
+    wrap.appendChild(pre);
   });
 }
