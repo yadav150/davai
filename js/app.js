@@ -2,4 +2,5 @@
 // Every future module gets imported here, so index.html never needs editing again.
 import "./auth.js";
 import "./ui.js";
+import "./shell.js";
 // Future: import "./conversations.js"; import "./chat.js"; etc.
