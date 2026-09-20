@@ -241,8 +241,8 @@ body {
 }
 
 .message.user .message-content {
-    background: #171717;
-    color: #fff;
+    background: var(--text);
+    color: var(--bg);
     border-bottom-right-radius: 4px;
 }
 
