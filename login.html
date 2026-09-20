@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dav AI — Sign in</title>
+<link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+<div class="auth-wrap">
+
+    <div class="auth-card">
+
+        <div class="auth-brand" id="authBrand">
+            Dav AI
+        </div>
+
+        <p class="auth-sub">
+            Sign in to continue
+        </p>
+
+
+        <div class="auth-error" id="authError"></div>
+
+
+        <button class="auth-google" id="googleBtn">
+            <span class="google-mark">G</span>
+            Continue with Google
+        </button>
+
+
+        <div class="auth-divider">
+            <span>or</span>
+        </div>
+
+
+        <form class="auth-form" id="authForm" autocomplete="on">
+
+            <label class="auth-label" for="emailInput">
+                Email
+            </label>
+
+            <input
+                class="auth-input"
+                id="emailInput"
+                type="email"
+                autocomplete="email"
+                required
+            >
+
+
+            <label class="auth-label" for="passwordInput">
+                Password
+            </label>
+
+            <input
+                class="auth-input"
+                id="passwordInput"
+                type="password"
+                autocomplete="current-password"
+                minlength="6"
+                required
+            >
+
+
+            <button
+                class="auth-submit"
+                id="submitBtn"
+                type="submit"
+            >
+                Sign in
+            </button>
+
+        </form>
+
+
+        <div class="auth-toggle">
+
+            <span id="toggleText">New to Dav AI?</span>
+
+            <button
+                class="auth-toggle-btn"
+                id="toggleBtn"
+                type="button"
+            >
+                Create account
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script type="module" src="js/login.js"></script>
+
+</body>
+</html>
