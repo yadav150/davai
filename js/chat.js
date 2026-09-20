@@ -132,7 +132,7 @@ function addMessage(text, type) {
 
     const message = document.createElement("div");
 
-    message.className = "message " + type;
+    message.className = "message " + String(type).toLowerCase();
 
     const content = document.createElement("div");
 
