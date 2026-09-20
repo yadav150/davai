@@ -1,8 +1,12 @@
 /* =========================================================
    DAV AI — CHATBOT FRONTEND
-   Cloned from approved reference design.
-   No backend, no auth, no Firebase wired in yet.
    ========================================================= */
+
+import { auth } from "./firebase.js";
+
+import { onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
 
 /* Product name — single source of truth. */
 const PRODUCT_NAME = "Dav AI";
@@ -425,8 +429,132 @@ async function requestAssistantReply(userText) {
    Replace with Firebase signOut later.
    ========================================================= */
 
-function handleLogout() {
+async function handleLogout() {
 
-    alert("You have been logged out.");
+    try {
+        stopInactivityWatch();
+        await signOut(auth);
+        window.location.replace("login.html");
+    } catch (err) {
+        alert("Logout failed: " + err.message);
+    }
+
+}
+
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+        stopInactivityWatch();
+        window.location.replace("login.html");
+        return;
+    }
+
+    applyRealProfile(user);
+    startInactivityWatch();
+
+});
+
+
+function applyRealProfile(user) {
+
+    const name =
+        user.displayName ||
+        (user.email ? user.email.split("@")[0] : "User");
+
+    const email = user.email || "";
+
+    const initials =
+        name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(w => w[0].toUpperCase())
+            .join("") || "U";
+
+    PROFILE.name = name;
+    PROFILE.email = email;
+    PROFILE.initials = initials;
+
+    document.getElementById("avatarSmall").textContent = initials;
+    document.getElementById("avatarLarge").textContent = initials;
+
+    document.getElementById("profileNameSmall").textContent = name;
+    document.getElementById("profileEmailSmall").textContent = email;
+
+    document.getElementById("profileNameLarge").textContent = name;
+    document.getElementById("profileEmailLarge").textContent = email;
+
+    document.getElementById("accountName").textContent = name;
+    document.getElementById("accountEmail").textContent = email;
+
+}
+
+
+/* =========================================================
+   INACTIVITY AUTO-LOGOUT
+   ---------------------------------------------------------
+   5 minutes of no user activity → sign out → redirect.
+   Activity events are throttled so mousemove does not
+   thrash the timer.
+   ========================================================= */
+
+const INACTIVITY_MS = 5 * 60 * 1000;
+
+let inactivityTimer = null;
+let lastReset = 0;
+
+const ACTIVITY_EVENTS = [
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "scroll",
+    "touchstart",
+    "click"
+];
+
+
+function resetInactivityTimer() {
+
+    const now = Date.now();
+
+    /* Throttle: ignore events fired within 1s of last reset. */
+    if (now - lastReset < 1000) return;
+    lastReset = now;
+
+    clearTimeout(inactivityTimer);
+
+    inactivityTimer = setTimeout(async () => {
+
+        try {
+            await signOut(auth);
+        } catch (err) {
+            /* ignore — we redirect anyway */
+        }
+
+        window.location.replace("login.html?reason=inactivity");
+
+    }, INACTIVITY_MS);
+
+}
+
+
+function startInactivityWatch() {
+
+    ACTIVITY_EVENTS.forEach(evt => {
+        document.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
+    resetInactivityTimer();
+
+}
+
+
+function stopInactivityWatch() {
+
+    ACTIVITY_EVENTS.forEach(evt => {
+        document.removeEventListener(evt, resetInactivityTimer);
+    });
+
+    clearTimeout(inactivityTimer);
 
 }
