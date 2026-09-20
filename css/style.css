@@ -400,9 +400,51 @@ svg.icon.lg { width: 20px; height: 20px; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px 14px; overflow-x: auto; margin: 0 0 10px;
-  position: relative;
 }
 .msg-body pre code { background: none; padding: 0; font-size: 13px; line-height: 1.6; }
+
+.code-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 0 0 10px;
+  overflow: hidden;
+}
+.code-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--muted);
+}
+.code-lang { font-family: var(--mono); text-transform: lowercase; }
+.code-copy {
+  padding: 3px 8px; border-radius: var(--radius-sm);
+  font-size: 12px; color: var(--text);
+  background: transparent; border: 1px solid var(--border);
+  transition: background .12s ease;
+}
+.code-copy:hover { background: var(--soft); }
+.code-block pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+.msg.msg-user .code-block {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.14);
+}
+.msg.msg-user .code-head {
+  border-color: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.72);
+}
+.msg.msg-user .code-copy {
+  color: #fff;
+  border-color: rgba(255,255,255,.22);
+}
+.msg.msg-user .code-copy:hover { background: rgba(255,255,255,.1); }
 .msg-body blockquote {
   border-left: 3px solid var(--border-strong);
   margin: 0 0 10px; padding: 4px 12px; color: var(--muted);
