@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#f4f5f7" />
-  <meta name="davai-backend" content="https://davai-worker.yadavsubba2003.workers.dev" />
+  <meta name="theme-color" content="#0b0d10" />
   <title>DavAI</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -20,13 +19,13 @@
   <main id="authView" class="auth-view is-hidden" aria-hidden="true">
     <section class="auth-card">
       <div class="auth-brand">
-        <div class="brand-mark lg">DavAI</div>
+        <div class="brand-mark">DavAI</div>
         <p class="auth-tagline">Your personal AI assistant</p>
       </div>
 
       <div class="auth-tabs" role="tablist">
-        <button class="auth-tab is-active" data-tab="signin" role="tab" aria-selected="true" type="button">Sign in</button>
-        <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false" type="button">Sign up</button>
+        <button class="auth-tab is-active" data-tab="signin" role="tab" aria-selected="true">Sign in</button>
+        <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false">Sign up</button>
       </div>
 
       <form id="authForm" class="auth-form" novalidate>
@@ -39,9 +38,7 @@
           <span class="field-label">Password</span>
           <span class="field-password">
             <input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
-            <button type="button" id="togglePassword" class="field-toggle" aria-label="Show password">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5c-5 0-9 4.5-10 7 1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>
-            </button>
+            <button type="button" id="togglePassword" class="field-toggle" aria-label="Show password"></button>
           </span>
         </label>
 
@@ -77,17 +74,10 @@
     <aside id="sidebar" class="sidebar" aria-label="Conversations">
       <header class="sidebar-head">
         <div class="brand-mark sm">DavAI</div>
-        <div class="sidebar-head-actions">
-          <button id="collapseSidebar" class="icon-btn sidebar-collapse" aria-label="Collapse sidebar" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M11.29 7.71 6 13l5.29 5.29 1.42-1.42L8.83 13l3.88-3.88zM17.29 7.71 12 13l5.29 5.29 1.42-1.42L14.83 13l3.88-3.88z"/></svg>
-          </button>
-          <button id="closeSidebar" class="icon-btn sidebar-close" aria-label="Close sidebar" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
-          </button>
-        </div>
+        <button id="closeSidebar" class="icon-btn sidebar-close" aria-label="Close sidebar"></button>
       </header>
 
-      <button id="newChatBtn" class="btn btn-primary btn-block btn-new-chat" type="button">
+      <button id="newChatBtn" class="btn btn-primary btn-block btn-new-chat">
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
         <span>New chat</span>
       </button>
@@ -99,24 +89,10 @@
       <nav id="convList" class="conv-list" aria-label="Conversation history"></nav>
 
       <footer class="sidebar-foot">
-        <button id="profileBtn" class="menu-item" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
-          <span>Profile</span>
-        </button>
-        <button id="analyticsBtn" class="menu-item" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5 21h3V10H5zM10.5 21h3V3h-3zM16 21h3v-8h-3z"/></svg>
-          <span>Usage</span>
-        </button>
-        <button id="memoryBtn" class="menu-item" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3a4 4 0 0 0-4 4v1H7a3 3 0 0 0 0 6h.09A4 4 0 0 0 11 18v3h2v-3a4 4 0 0 0 3.91-3H17a3 3 0 0 0 0-6h-1V7a4 4 0 0 0-4-4zm2 5H10V7a2 2 0 0 1 4 0zm3 5a1 1 0 0 1-1 1H8a1 1 0 0 1 0-2h8a1 1 0 0 1 1 1z"/></svg>
-          <span>Memory</span>
-        </button>
         <button id="settingsBtn" class="menu-item" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9.4 4.6-1.9-.3a7.6 7.6 0 0 0-.8-1.9l1.1-1.6a.8.8 0 0 0-.1-1l-1.5-1.5a.8.8 0 0 0-1-.1l-1.6 1.1a7.6 7.6 0 0 0-1.9-.8L13.4 4.6a.8.8 0 0 0-.8-.6h-2.1a.8.8 0 0 0-.8.6l-.3 1.9a7.6 7.6 0 0 0-1.9.8L5.9 6.2a.8.8 0 0 0-1 .1L3.4 7.8a.8.8 0 0 0-.1 1l1.1 1.6a7.6 7.6 0 0 0-.8 1.9l-1.9.3a.8.8 0 0 0-.6.8v2.1c0 .4.3.7.6.8l1.9.3c.2.7.5 1.3.8 1.9l-1.1 1.6c-.2.3-.2.7.1 1l1.5 1.5c.3.3.7.3 1 .1l1.6-1.1c.6.4 1.2.6 1.9.8l.3 1.9c.1.4.4.6.8.6h2.1c.4 0 .7-.3.8-.6l.3-1.9a7.6 7.6 0 0 0 1.9-.8l1.6 1.1c.3.2.7.2 1-.1l1.5-1.5c.3-.3.3-.7.1-1l-1.1-1.6c.4-.6.6-1.2.8-1.9l1.9-.3c.4-.1.6-.4.6-.8v-2.1a.8.8 0 0 0-.6-.8z"/></svg>
           <span>Settings</span>
         </button>
         <button id="signOutBtn" class="menu-item" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M10 17v-2H3V9h7V7l5 5zM19 3H12v2h7v14h-7v2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
           <span>Sign out</span>
         </button>
       </footer>
@@ -127,20 +103,14 @@
     <!-- Main chat area -->
     <section class="chat">
       <header class="chat-head">
-        <button id="openSidebar" class="icon-btn" aria-label="Open sidebar" type="button">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"/></svg>
-        </button>
+        <button id="openSidebar" class="icon-btn" aria-label="Open sidebar"></button>
         <div class="chat-title">
           <h1 id="chatTitle">New chat</h1>
           <p id="chatSubtitle" class="muted"></p>
         </div>
         <div class="chat-head-actions">
-          <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-          <button id="userMenuBtn" class="icon-btn" aria-label="Account" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
-          </button>
+          <button id="themeToggle" class="icon-btn" aria-label="Toggle theme"></button>
+          <button id="userMenuBtn" class="icon-btn" aria-label="Account"></button>
         </div>
       </header>
 
@@ -155,242 +125,14 @@
       <form id="composer" class="composer" autocomplete="off">
         <div class="composer-inner">
           <textarea id="composerInput" rows="1" placeholder="Message DavAI..." aria-label="Message"></textarea>
-          <button type="button" id="stopBtn" class="btn btn-ghost icon-only is-hidden" aria-label="Stop generating">
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>
-          </button>
-          <button type="submit" id="sendBtn" class="btn btn-primary icon-only" aria-label="Send">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 4l-7 7 1.4 1.4L11 7.8V20h2V7.8l4.6 4.6L19 11z"/></svg>
-          </button>
+          <button type="button" id="stopBtn" class="btn btn-ghost is-hidden" aria-label="Stop generating"></button>
+          <button type="submit" id="sendBtn" class="btn btn-primary icon-only" aria-label="Send"></button>
         </div>
         <p class="composer-hint muted">Enter to send · Shift + Enter for new line</p>
       </form>
     </section>
   </div>
 
-  <!-- Settings modal -->
-  <div id="settingsModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="settingsTitle">
-    <div class="modal-scrim" data-close-settings></div>
-    <div class="modal-card">
-      <header class="modal-head">
-        <h2 id="settingsTitle">Settings</h2>
-        <button type="button" class="icon-btn" data-close-settings aria-label="Close settings">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
-        </button>
-      </header>
-      <div class="modal-body" id="settingsBody">
-        <div class="settings-row">
-          <label for="setTheme">Theme</label>
-          <select id="setTheme">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
-        <div class="settings-row">
-          <label for="setLanguage">Language</label>
-          <select id="setLanguage">
-            <option value="auto">Auto (match my language)</option>
-            <option value="en">English</option>
-            <option value="hi">Hindi</option>
-            <option value="hi-en">Hinglish</option>
-          </select>
-        </div>
-        <div class="settings-row">
-          <label for="setResponseStyle">Response style</label>
-          <select id="setResponseStyle">
-            <option value="balanced">Balanced</option>
-            <option value="concise">Concise</option>
-            <option value="detailed">Detailed</option>
-            <option value="exam">Exam-focused</option>
-          </select>
-        </div>
-        <div class="settings-row">
-          <label for="setResponseLength">Response length</label>
-          <select id="setResponseLength">
-            <option value="short">Short</option>
-            <option value="medium">Medium</option>
-            <option value="long">Long</option>
-          </select>
-        </div>
-        <div class="settings-row toggle-row">
-          <label for="setMemory">Personal memory</label>
-          <input type="checkbox" id="setMemory" />
-        </div>
-        <div class="settings-row toggle-row">
-          <label for="setSearch">Web search</label>
-          <input type="checkbox" id="setSearch" />
-        </div>
-        <div class="settings-row">
-          <label for="setProvider">AI provider</label>
-          <select id="setProvider">
-            <option value="groq">Groq</option>
-            <option value="xai">xAI Grok</option>
-            <option value="openai">OpenAI</option>
-          </select>
-        </div>
-        <div class="settings-row">
-          <label for="setModel">Model</label>
-          <input type="text" id="setModel" placeholder="openai/gpt-oss-120b" />
-        </div>
-        <p class="settings-note" id="settingsNote"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Memory modal -->
-  <div id="memoryModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="memoryTitle">
-    <div class="modal-scrim" data-close-memory></div>
-    <div class="modal-card">
-      <header class="modal-head">
-        <h2 id="memoryTitle">Personal memory</h2>
-        <button type="button" class="icon-btn" data-close-memory aria-label="Close memory">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
-        </button>
-      </header>
-      <div class="modal-body">
-        <p class="settings-note" id="memoryHint">Memory is optional. DavAI uses it only when enabled in Settings.</p>
-        <div class="memory-add">
-          <input type="text" id="memKey" placeholder="Key (e.g. preferred_language)" />
-          <input type="text" id="memValue" placeholder="Value (e.g. Hinglish)" />
-          <button type="button" id="memAddBtn" class="btn btn-primary">Add</button>
-        </div>
-        <div id="memError" class="settings-note is-error"></div>
-        <div id="memList" class="memory-list"></div>
-        <div class="memory-foot">
-          <button type="button" id="memClearBtn" class="btn btn-ghost">Clear all</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Analytics modal -->
-  <div id="analyticsModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="analyticsTitle">
-    <div class="modal-scrim" data-close-analytics></div>
-    <div class="modal-card">
-      <header class="modal-head">
-        <h2 id="analyticsTitle">Usage</h2>
-        <button type="button" class="icon-btn" data-close-analytics aria-label="Close analytics">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
-        </button>
-      </header>
-      <div class="modal-body">
-        <div id="analyticsError" class="settings-note is-error"></div>
-        <div class="analytics-grid" id="analyticsGrid"></div>
-        <h3 class="analytics-subhead">Last 14 days</h3>
-        <div id="analyticsDaily" class="analytics-daily"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profile modal -->
-  <div id="profileModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="profileTitle">
-    <div class="modal-scrim" data-close-profile></div>
-    <div class="modal-card">
-      <header class="modal-head">
-        <h2 id="profileTitle">Profile</h2>
-        <button type="button" class="icon-btn" data-close-profile aria-label="Close profile">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.41L10.6 13.4 4.3 19.7l1.4 1.41L12 14.83l6.3 6.28 1.4-1.41-6.3-6.29 6.3-6.29z"/></svg>
-        </button>
-      </header>
-
-      <div class="modal-body">
-        <!-- Avatar + name -->
-        <div class="profile-head">
-          <div class="profile-avatar" id="profileAvatar">
-            <span id="profileInitials">?</span>
-          </div>
-          <div class="profile-head-info">
-            <div class="profile-display-name" id="profileDisplayName">—</div>
-            <div class="profile-email muted" id="profileEmail">—</div>
-            <div class="profile-provider muted" id="profileProvider"></div>
-          </div>
-        </div>
-
-        <div class="profile-avatar-actions">
-          <button type="button" id="profileUploadBtn" class="btn btn-ghost">Upload photo</button>
-          <button type="button" id="profileRemoveBtn" class="btn btn-ghost is-hidden">Remove photo</button>
-          <input type="file" id="profileFileInput" accept="image/*" hidden />
-        </div>
-
-        <p class="settings-note is-error" id="profileError"></p>
-
-        <hr class="profile-divider" />
-
-        <!-- Editable info -->
-        <div class="settings-row">
-          <label for="profileNameInput">Display name</label>
-          <input type="text" id="profileNameInput" placeholder="Your name" />
-        </div>
-        <div class="settings-row">
-          <label for="profileBioInput">Bio</label>
-          <input type="text" id="profileBioInput" placeholder="Short bio" maxlength="140" />
-        </div>
-        <div class="profile-save-row">
-          <button type="button" id="profileSaveBtn" class="btn btn-primary">Save changes</button>
-          <span class="settings-note" id="profileSaveNote"></span>
-        </div>
-
-        <hr class="profile-divider" />
-
-        <!-- Change password (email users only) -->
-        <div id="profilePasswordSection" class="is-hidden">
-          <h3 class="profile-subhead">Change password</h3>
-          <div class="settings-row">
-            <label for="profileCurrentPwd">Current password</label>
-            <input type="password" id="profileCurrentPwd" autocomplete="current-password" />
-          </div>
-          <div class="settings-row">
-            <label for="profileNewPwd">New password</label>
-            <input type="password" id="profileNewPwd" autocomplete="new-password" />
-          </div>
-          <div class="profile-save-row">
-            <button type="button" id="profileChangePwdBtn" class="btn btn-ghost">Change password</button>
-            <span class="settings-note" id="profilePwdNote"></span>
-          </div>
-          <hr class="profile-divider" />
-        </div>
-
-        <!-- Danger zone -->
-        <div class="profile-danger">
-          <h3 class="profile-subhead danger">Danger zone</h3>
-
-          <div class="danger-row">
-            <div>
-              <div class="danger-title">Sign out all devices</div>
-              <div class="danger-desc muted">Ends every active session except this one.</div>
-            </div>
-            <button type="button" id="profileSignOutAllBtn" class="btn btn-ghost danger-btn">Sign out all</button>
-          </div>
-
-          <div class="danger-row">
-            <div>
-              <div class="danger-title">Delete account</div>
-              <div class="danger-desc muted">Permanently deletes your account and all data. This cannot be undone.</div>
-            </div>
-            <button type="button" id="profileDeleteBtn" class="btn btn-ghost danger-btn">Delete</button>
-          </div>
-
-          <p class="settings-note is-error" id="profileDangerNote"></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script type="module" src="js/firebase.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/user.js"></script>
-  <script type="module" src="js/conversations.js"></script>
-  <script type="module" src="js/app.js"></script>
-  <script type="module" src="js/ui-conversations.js"></script>
-  <script type="module" src="js/chat.js"></script>
-  <script type="module" src="js/markdown.js"></script>
-  <script type="module" src="js/backend.js"></script>
-  <script type="module" src="js/ui-sources.js"></script>
-  <script type="module" src="js/ui-settings.js"></script>
-  <script type="module" src="js/memory.js"></script>
-  <script type="module" src="js/ui-memory.js"></script>
-  <script type="module" src="js/analytics.js"></script>
-  <script type="module" src="js/ui-analytics.js"></script>
-  <script type="module" src="js/cloudinary.js"></script>
-  <script type="module" src="js/ui-profile.js"></script>
 </body>
 </html>
