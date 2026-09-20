@@ -17,6 +17,7 @@ import {
   escapeHtml, formatIST, icon, toast,
   openContextMenu, confirmDialog, renameDialog, closeDrawer
 } from "./ui.js";
+import { renderMarkdown, enhanceCodeBlocks } from "./markdown.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -98,7 +99,9 @@ function renderMessages(msgs) {
     .map((m) => {
       const role = m.role === "user" ? "user" : m.role === "assistant" ? "assistant" : "system";
       const time = formatIST(m.timestamp, "time");
-      const body = escapeHtml(m.content).replace(/\n/g, "<br>");
+      const body = role === "assistant"
+        ? renderMarkdown(m.content)
+        : escapeHtml(m.content).replace(/\n/g, "<br>");
       const actions =
         role !== "system"
           ? `<div class="msg-actions">
@@ -117,6 +120,22 @@ function renderMessages(msgs) {
       `;
     })
     .join("");
+
+  enhanceCodeBlocks(inner);
+
+  inner.querySelectorAll("[data-copy-code]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const codeEl = btn.closest(".code-block")?.querySelector("pre > code");
+      if (!codeEl) return;
+      try {
+        await navigator.clipboard.writeText(codeEl.innerText);
+        btn.textContent = "Copied";
+        setTimeout(() => { btn.textContent = "Copy"; }, 1200);
+      } catch {
+        toast("Copy failed.", { type: "error" });
+      }
+    });
+  });
 
   inner.querySelectorAll(".msg").forEach((el, i) => {
     const m = msgs[i];
