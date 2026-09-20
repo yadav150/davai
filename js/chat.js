@@ -105,7 +105,7 @@ async function sendMessage() {
 
     welcome.style.display = "none";
 
-    addMessage(text, "user");
+    addMessage(text, "User");
 
     messageInput.value = "";
 
@@ -115,13 +115,13 @@ async function sendMessage() {
 
     updateChatTitle(text);
 
-    showTyping();
+    ThinkingUI.show("Thinking");
 
     const reply = await requestAssistantReply(text);
 
-    hideTyping();
+    ThinkingUI.hide();
 
-    addMessage(reply, "assistant");
+    addMessage(reply, "Assistant");
 
 }
 
@@ -149,22 +149,75 @@ function addMessage(text, type) {
 }
 
 
-/* ---------- TYPING ---------- */
+/* =========================================================
+   THINKING UI
+   ---------------------------------------------------------
+   Public API (stable — do NOT rename):
+       ThinkingUI.show(key?)       // show indicator
+       ThinkingUI.hide()           // hide indicator
+       ThinkingUI.setState(key)    // transition to a state
 
-function showTyping() {
+   States (keys):
+       thinking | understanding | analyzing |
+       researching | checking | comparing | preparing
 
-    typing.style.display = "block";
+   Source of state changes:
+       Phase 1 (now)   : static — "thinking" only.
+       Phase 8 (later) : driven by SSE events from the
+                         Cloudflare Worker. No DOM rewrite
+                         needed — same public API.
+   ========================================================= */
 
-    scrollToBottom();
+const ThinkingUI = (() => {
 
-}
+    const STATES = {
+        thinking:      "Thinking...",
+        understanding: "Understanding your question...",
+        analyzing:     "Analyzing the problem...",
+        researching:   "Researching relevant information...",
+        checking:      "Checking available information...",
+        comparing:     "Comparing findings...",
+        preparing:     "Preparing the response..."
+    };
 
+    const label = document.getElementById("thinkingLabel");
 
-function hideTyping() {
+    let current = null;
 
-    typing.style.display = "none";
+    function show(key = "thinking") {
+        typing.style.display = "block";
+        setState(key, true);
+        scrollToBottom();
+    }
 
-}
+    function hide() {
+        typing.style.display = "none";
+        current = null;
+    }
+
+    function setState(key, immediate = false) {
+        if (current === key) return;
+        if (!(key in STATES)) return;
+        current = key;
+
+        const text = STATES[key];
+
+        if (immediate) {
+            label.textContent = text;
+            label.style.opacity = "1";
+            return;
+        }
+
+        label.style.opacity = "0";
+        setTimeout(() => {
+            label.textContent = text;
+            label.style.opacity = "1";
+        }, 140);
+    }
+
+    return { show, hide, setState, STATES };
+
+})();
 
 
 /* ---------- SCROLL ---------- */
