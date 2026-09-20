@@ -1,400 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" />
-  <title>DavAI</title>
-  <link rel="stylesheet" href="css/style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dav AI</title>
+<link rel="stylesheet" href="chat.css">
 </head>
+
 <body>
 
-  <!-- ============= SVG ICON SPRITE ============= -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
-    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
-    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></symbol>
-    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
-    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.9 10.9 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.5 6.7A16.6 16.6 0 0 0 2 12s3.5 6 10 6c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
-    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></symbol>
-    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
-    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M6 6l1 14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-14"/></symbol>
-    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
-    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></symbol>
-    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></symbol>
-    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
-    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
-    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
-    <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3 3V4z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3 3V4z"/></symbol>
-  </svg>
+<div class="app">
 
-  <!-- ============= BOOT LOADER ============= -->
-  <div id="bootLoader" class="boot-loader">
-    <div class="boot-mark">DavAI</div>
-    <div class="boot-bar"><span></span></div>
-  </div>
+    <aside class="sidebar" id="sidebar">
 
-  <!-- ============= AUTH VIEW ============= -->
-  <main id="authView" class="auth-view is-hidden" aria-hidden="true">
-    <section class="auth-card">
-      <div class="auth-brand">
-        <div class="brand-mark">DavAI</div>
-        <p class="auth-tagline">Your personal AI assistant</p>
-      </div>
-
-      <div class="auth-tabs" role="tablist">
-        <button class="auth-tab is-active" data-tab="signin" role="tab" aria-selected="true">Sign in</button>
-        <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false">Sign up</button>
-      </div>
-
-      <form id="authForm" class="auth-form" novalidate>
-        <label class="field">
-          <span class="field-label">Email</span>
-          <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
-        </label>
-
-        <label class="field">
-          <span class="field-label">Password</span>
-          <span class="field-password">
-            <input id="authPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required />
-            <button type="button" id="togglePassword" class="field-toggle" aria-label="Show password">
-              <svg class="icon sm"><use href="#i-eye"/></svg>
-            </button>
-          </span>
-        </label>
-
-        <div id="authError" class="auth-error is-hidden" role="alert">
-          <svg class="icon sm"><use href="#i-alert"/></svg>
-          <span id="authErrorText"></span>
+        <div class="brand" id="brand">
+            Dav AI
         </div>
 
-        <button type="submit" id="authSubmit" class="btn btn-primary btn-block btn-lg">
-          <span class="btn-label">Sign in</span>
-          <span class="btn-spinner is-hidden" aria-hidden="true"></span>
+        <button class="new-chat" id="newChat">
+            + New Chat
         </button>
-      </form>
 
-      <div class="auth-divider"><span>or continue with</span></div>
+        <div class="history-title">
+            Recent Chats
+        </div>
 
-      <div class="auth-providers">
-        <button type="button" class="btn btn-ghost btn-provider" data-provider="google">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#18181b" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.26-2.08 3.55-5.14 3.55-8.87z"/><path fill="#3f3f46" d="M12 24c3.24 0 5.95-1.08 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24z"/><path fill="#71717a" d="M5.27 14.28a7.2 7.2 0 0 1 0-4.56V6.63H1.29a12 12 0 0 0 0 10.74l3.98-3.09z"/><path fill="#a1a1aa" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 7.7 0 3.99 2.47 1.29 6.63l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
-          <span>Google</span>
-        </button>
-        <button type="button" class="btn btn-ghost btn-provider" data-provider="github">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#18181b" d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.24 2.77.12 3.06.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.28 5.68.41.35.78 1.05.78 2.12v3.14c0 .31.2.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
-          <span>GitHub</span>
-        </button>
-      </div>
+        <div class="chat-history" id="chatHistory">
+            <div class="history-item active">
+                New conversation
+            </div>
+        </div>
 
-      <p class="auth-legal">By continuing you agree to the terms of use.</p>
-    </section>
-  </main>
+        <div class="sidebar-bottom">
 
-  <!-- ============= APP VIEW ============= -->
-  <div id="appView" class="app-view is-hidden" aria-hidden="true">
+            <button class="sidebar-button" id="settingsButton">
+                Settings
+            </button>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar" aria-label="Conversations">
-      <header class="sidebar-head">
-        <div class="brand-mark sm">DavAI</div>
-        <button id="closeSidebar" class="icon-btn sidebar-close" aria-label="Close sidebar">
-          <svg class="icon"><use href="#i-close"/></svg>
-        </button>
-      </header>
+            <button class="sidebar-button profile-button" id="profileButton">
 
-      <button id="newChatBtn" class="btn btn-primary btn-new-chat">
-        <svg class="icon sm"><use href="#i-plus"/></svg>
-        <span>New chat</span>
-      </button>
+                <div class="avatar" id="avatarSmall">
+                    YS
+                </div>
 
-      <div class="sidebar-search">
-        <span class="search-icon"><svg class="icon sm"><use href="#i-search"/></svg></span>
-        <input id="convSearch" type="search" placeholder="Search conversations" aria-label="Search conversations" />
-      </div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileNameSmall">
+                        User
+                    </div>
 
-      <nav id="convList" class="conv-list" aria-label="Conversation history"></nav>
+                    <div class="profile-email" id="profileEmailSmall">
+                        user@example.com
+                    </div>
+                </div>
 
-      <footer class="sidebar-foot">
-        <button id="settingsBtn" class="menu-item" type="button">
-          <span class="menu-icon"><svg class="icon sm"><use href="#i-settings"/></svg></span>
-          <span>Settings</span>
-        </button>
-        <button id="memoryBtn" class="menu-item" type="button">
-          <span class="menu-icon"><svg class="icon sm"><use href="#i-brain"/></svg></span>
-          <span>Memory</span>
-        </button>
-        <button id="signOutBtn" class="menu-item" type="button">
-          <span class="menu-icon"><svg class="icon sm"><use href="#i-logout"/></svg></span>
-          <span>Sign out</span>
-        </button>
-      </footer>
+            </button>
+
+        </div>
+
     </aside>
 
-    <div id="sidebarScrim" class="sidebar-scrim" hidden></div>
 
-    <!-- Chat -->
-    <section class="chat">
-      <header class="chat-head">
-        <button id="openSidebar" class="icon-btn" aria-label="Open sidebar">
-          <svg class="icon"><use href="#i-menu"/></svg>
-        </button>
-        <div class="chat-title">
-          <h1 id="chatTitle">New chat</h1>
-          <p id="chatSubtitle" class="subtitle"></p>
-        </div>
-        <div class="chat-head-actions">
-          <button id="userMenuBtn" class="icon-btn" aria-label="Account">
-            <svg class="icon"><use href="#i-user"/></svg>
-          </button>
-        </div>
-      </header>
+    <main class="main">
 
-      <div id="messages" class="messages" aria-live="polite">
-        <div id="messagesInner" class="messages-inner"></div>
-      </div>
+        <header class="header">
 
-      <div id="emptyState" class="empty-state">
-        <div class="empty-mark">DavAI</div>
-        <h2>How can I help you today?</h2>
-        <p class="muted">Ask anything. DavAI uses live AI and web search when needed.</p>
-      </div>
+            <button class="mobile-menu" id="mobileMenu">
+                ☰
+            </button>
 
-      <form id="composer" class="composer" autocomplete="off">
-        <div class="composer-inner">
-          <textarea id="composerInput" rows="1" placeholder="Message DavAI..." aria-label="Message"></textarea>
-          <button type="button" id="stopBtn" class="btn btn-ghost is-hidden" aria-label="Stop generating">
-            <svg class="icon sm"><use href="#i-stop"/></svg>
-          </button>
-          <button type="submit" id="sendBtn" class="icon-btn is-active" aria-label="Send" disabled>
-            <svg class="icon"><use href="#i-send"/></svg>
-          </button>
-        </div>
-        <p class="composer-hint">Enter to send · Shift + Enter for new line</p>
-      </form>
-    </section>
-  </div>
-
-  <!-- ============= SETTINGS MODAL ============= -->
-  <div id="settingsModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="settingsTitle">
-    <div class="modal-scrim" data-close="settingsModal"></div>
-    <div class="modal-card lg">
-      <header class="modal-head">
-        <h2 id="settingsTitle">Settings</h2>
-        <button class="icon-btn" data-close="settingsModal" aria-label="Close">
-          <svg class="icon"><use href="#i-close"/></svg>
-        </button>
-      </header>
-      <div class="modal-body">
-
-        <div class="settings-section">
-          <div class="settings-section-title">Language &amp; Style</div>
-
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Language</div>
-              <div class="settings-row-desc">Response language preference</div>
+            <div class="chat-title" id="chatTitle">
+                New conversation
             </div>
-            <div class="settings-row-control">
-              <select id="setLanguage">
-                <option value="auto">Auto detect</option>
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="hinglish">Hinglish</option>
-              </select>
-            </div>
-          </div>
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Response style</div>
-              <div class="settings-row-desc">Tone of the assistant</div>
-            </div>
-            <div class="settings-row-control">
-              <select id="setStyle">
-                <option value="balanced">Balanced</option>
-                <option value="concise">Concise</option>
-                <option value="detailed">Detailed</option>
-                <option value="formal">Formal</option>
-                <option value="casual">Casual</option>
-              </select>
-            </div>
-          </div>
+        </header>
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Response length</div>
-              <div class="settings-row-desc">Preferred answer length</div>
+
+        <section class="chat-area" id="chatArea">
+
+            <div class="messages" id="messages">
+
+                <div class="welcome" id="welcome">
+
+                    <div class="welcome-inner">
+
+                        <h1>
+                            How can I help you?
+                        </h1>
+
+                        <p>
+                            Ask anything and start a conversation with your AI assistant.
+                        </p>
+
+                    </div>
+
+                </div>
+
             </div>
-            <div class="settings-row-control">
-              <select id="setLength">
-                <option value="short">Short</option>
-                <option value="medium" selected>Medium</option>
-                <option value="long">Long</option>
-              </select>
+
+        </section>
+
+
+        <div class="typing" id="typing">
+
+            <div class="typing-content">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
             </div>
-          </div>
+
         </div>
 
-        <div class="settings-section">
-          <div class="settings-section-title">AI</div>
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Model</div>
-              <div class="settings-row-desc">Loaded from backend</div>
-            </div>
-            <div class="settings-row-control">
-              <select id="setModel" disabled>
-                <option value="">Loading…</option>
-              </select>
-            </div>
-          </div>
+        <div class="input-wrapper">
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Temperature</div>
-              <div class="settings-row-desc">Creativity level (0 = focused, 1 = creative)</div>
-            </div>
-            <div class="settings-row-control">
-              <input id="setTemperature" type="number" min="0" max="1" step="0.1" value="0.7" />
-            </div>
-          </div>
+            <div class="input-box">
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Streaming responses</div>
-              <div class="settings-row-desc">Show answers as they are generated</div>
+                <textarea
+                    id="messageInput"
+                    class="message-input"
+                    placeholder="Message AI..."
+                    rows="1"
+                ></textarea>
+
+                <button
+                    id="sendButton"
+                    class="send-button"
+                    disabled
+                >
+                    ↑
+                </button>
+
             </div>
-            <div class="settings-row-control">
-              <label class="switch">
-                <input type="checkbox" id="setStreaming" checked />
-                <span class="switch-track"><span class="switch-thumb"></span></span>
-              </label>
+
+            <div class="disclaimer">
+                AI can make mistakes. Check important information.
             </div>
-          </div>
+
         </div>
 
-        <div class="settings-section">
-          <div class="settings-section-title">Tools</div>
+    </main>
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Web search</div>
-              <div class="settings-row-desc">Allow DavAI to search the web</div>
-            </div>
-            <div class="settings-row-control">
-              <label class="switch">
-                <input type="checkbox" id="setWebSearch" checked />
-                <span class="switch-track"><span class="switch-thumb"></span></span>
-              </label>
-            </div>
-          </div>
+</div>
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Personal memory</div>
-              <div class="settings-row-desc">Let DavAI remember preferences</div>
-            </div>
-            <div class="settings-row-control">
-              <label class="switch">
-                <input type="checkbox" id="setMemory" checked />
-                <span class="switch-track"><span class="switch-thumb"></span></span>
-              </label>
-            </div>
-          </div>
+
+<!-- SETTINGS -->
+
+<div class="settings-overlay" id="settingsOverlay">
+
+    <div class="settings-panel">
+
+        <div class="settings-header">
+
+            <h2>
+                Settings
+            </h2>
+
+            <button class="close-settings" id="closeSettings">
+                ×
+            </button>
+
         </div>
 
-      </div>
-      <footer class="modal-foot">
-        <button class="btn btn-ghost" data-close="settingsModal" type="button">Cancel</button>
-        <button class="btn btn-primary" id="settingsSave" type="button">Save</button>
-      </footer>
+
+        <div class="settings-content">
+
+            <div class="profile-card">
+
+                <div class="large-avatar" id="avatarLarge">
+                    YS
+                </div>
+
+                <div class="profile-details">
+
+                    <h3 id="profileNameLarge">
+                        User
+                    </h3>
+
+                    <p id="profileEmailLarge">
+                        user@example.com
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="setting-section">
+
+                <div class="setting-section-title">
+                    Account
+                </div>
+
+                <div class="setting-row">
+                    <span>Name</span>
+                    <span class="setting-value" id="accountName">User</span>
+                </div>
+
+                <div class="setting-row">
+                    <span>Email</span>
+                    <span class="setting-value" id="accountEmail">user@example.com</span>
+                </div>
+
+            </div>
+
+
+            <div class="setting-section">
+
+                <div class="setting-section-title">
+                    Preferences
+                </div>
+
+                <div class="setting-row">
+                    <span>Language</span>
+                    <span class="setting-value">English</span>
+                </div>
+
+                <div class="setting-row">
+                    <span>Theme</span>
+                    <span class="setting-value">System</span>
+                </div>
+
+            </div>
+
+
+            <button class="logout-button" id="logoutButton">
+                Log out
+            </button>
+
+        </div>
+
     </div>
-  </div>
 
-  <!-- ============= MEMORY MODAL ============= -->
-  <div id="memoryModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="memoryTitle">
-    <div class="modal-scrim" data-close="memoryModal"></div>
-    <div class="modal-card lg">
-      <header class="modal-head">
-        <h2 id="memoryTitle">Memory</h2>
-        <button class="icon-btn" data-close="memoryModal" aria-label="Close">
-          <svg class="icon"><use href="#i-close"/></svg>
-        </button>
-      </header>
-      <div class="modal-body">
-        <div id="memoryList" class="memory-list"></div>
-        <div id="memoryEmpty" class="memory-empty">No memory saved yet.</div>
+</div>
 
-        <div style="margin-top:16px">
-          <label class="field">
-            <span class="field-label">Add memory</span>
-            <textarea id="memoryNewText" placeholder="Something DavAI should remember about you…"></textarea>
-          </label>
-          <button type="button" id="memoryAddBtn" class="btn btn-primary btn-sm">
-            <svg class="icon sm"><use href="#i-plus"/></svg>
-            <span>Add</span>
-          </button>
+
+<!-- LOGOUT CONFIRMATION -->
+
+<div class="logout-modal" id="logoutModal">
+
+    <div class="logout-box">
+
+        <h3>
+            Log out?
+        </h3>
+
+        <p>
+            Are you sure you want to log out of your account?
+        </p>
+
+        <div class="logout-actions">
+
+            <button class="cancel-logout" id="cancelLogout">
+                Cancel
+            </button>
+
+            <button class="confirm-logout" id="confirmLogout">
+                Log out
+            </button>
+
         </div>
-      </div>
+
     </div>
-  </div>
 
-  <!-- ============= RENAME DIALOG ============= -->
-  <div id="renameModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="renameTitle">
-    <div class="modal-scrim" data-close="renameModal"></div>
-    <div class="modal-card">
-      <header class="modal-head">
-        <h2 id="renameTitle">Rename conversation</h2>
-        <button class="icon-btn" data-close="renameModal" aria-label="Close">
-          <svg class="icon"><use href="#i-close"/></svg>
-        </button>
-      </header>
-      <div class="modal-body">
-        <label class="field">
-          <span class="field-label">Title</span>
-          <input id="renameInput" type="text" maxlength="200" placeholder="Conversation title" />
-        </label>
-      </div>
-      <footer class="modal-foot">
-        <button class="btn btn-ghost" data-close="renameModal" type="button">Cancel</button>
-        <button class="btn btn-primary" id="renameSave" type="button">Save</button>
-      </footer>
-    </div>
-  </div>
+</div>
 
-  <!-- ============= CONFIRM DIALOG ============= -->
-  <div id="confirmModal" class="modal is-hidden" aria-hidden="true" role="dialog" aria-labelledby="confirmTitle">
-    <div class="modal-scrim" data-close="confirmModal"></div>
-    <div class="modal-card">
-      <header class="modal-head">
-        <h2 id="confirmTitle">Are you sure?</h2>
-        <button class="icon-btn" data-close="confirmModal" aria-label="Close">
-          <svg class="icon"><use href="#i-close"/></svg>
-        </button>
-      </header>
-      <div class="modal-body">
-        <p id="confirmText" class="muted" style="margin:0">This action cannot be undone.</p>
-      </div>
-      <footer class="modal-foot">
-        <button class="btn btn-ghost" data-close="confirmModal" type="button">Cancel</button>
-        <button class="btn btn-primary" id="confirmAction" type="button">Confirm</button>
-      </footer>
-    </div>
-  </div>
 
-  <!-- ============= CONTEXT MENU ============= -->
-  <div id="contextMenu" class="context-menu is-hidden" role="menu"></div>
+<script type="module" src="js/chat.js"></script>
 
-  <!-- ============= TOASTS ============= -->
-  <div id="toastWrap" class="toast-wrap" aria-live="polite"></div>
-
-  <!-- ============= ENTRY POINT ============= -->
-  <script type="module" src="js/app.js"></script>
 </body>
 </html>
