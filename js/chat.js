@@ -10,7 +10,7 @@ import { onAuthStateChanged, signOut }
 import {
     ref, push, set, get, update, remove,
     onValue, serverTimestamp
-}e
+}
 from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
 
