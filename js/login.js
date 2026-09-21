@@ -12,9 +12,16 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInWithPopup,
-    onAuthStateChanged
+    onAuthStateChanged,
+    initializeRecaptchaConfig
 }
 from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+
+/* Initialize reCAPTCHA Enterprise config before any auth call.
+   Required on Firebase projects created after Sep 2023.
+   Missing this = 400 on every email/password sign-in. */
+await initializeRecaptchaConfig(auth);
 
 
 /* ---------- DOM ---------- */
