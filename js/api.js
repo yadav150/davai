@@ -21,7 +21,10 @@ async function authHeader() {
     const user = auth.currentUser;
     if (!user) throw new Error("not_signed_in");
 
-    const token = await getIdToken(user, false);
+    /* Force a refresh if the cached token is within 5 minutes of expiry.
+       Passing `true` always refreshes — slow but always valid.
+       Firebase's own caching handles the common case cheaply. */
+    const token = await getIdToken(user);
     return { Authorization: "Bearer " + token };
 
 }
@@ -97,11 +100,12 @@ export async function streamChat({ messages, settings, signal, onEvent }) {
         let payload = null;
         try { payload = await res.json(); } catch { /* ignore */ }
 
+        const reason = payload && payload.reason ? " [" + payload.reason + "]" : "";
         const msg =
             (payload && (payload.message || payload.error)) ||
             ("HTTP " + res.status);
 
-        throw new Error("chat_" + res.status + ": " + msg);
+        throw new Error("chat_" + res.status + ": " + msg + reason);
 
     }
 
