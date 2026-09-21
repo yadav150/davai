@@ -173,11 +173,11 @@ async function sendMessage() {
     }
 
     /* history already includes the just-saved user message. */
-
-    /* Create the assistant bubble up-front, then stream into it. */
+       /* Create the assistant bubble up-front, then stream into it. */
     const assistantEl = addMessage("", "assistant");
 
     let replyText = "";
+    let firstDelta = false;
 
     try {
 
@@ -186,10 +186,26 @@ async function sendMessage() {
             settings: {},
             onEvent: (evt) => {
 
+                if (evt.type === "status" && typeof evt.state === "string") {
+                    ThinkingUI.setState(evt.state);
+                }
+
                 if (evt.type === "delta" && typeof evt.text === "string") {
+
+                    /* First token means we're actually producing —
+                       move to "preparing" if not already there. */
+                    if (!firstDelta) {
+                        firstDelta = true;
+                        ThinkingUI.setState("preparing");
+                    }
+
                     replyText += evt.text;
                     assistantEl.querySelector(".message-content").textContent = replyText;
                     scrollToBottom();
+                }
+
+                if (evt.type === "meta" && Array.isArray(evt.sources) && evt.sources.length) {
+                    console.log("Sources used:", evt.sources.map(s => s.domain).join(", "));
                 }
 
                 if (evt.type === "error") {
