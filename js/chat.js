@@ -10,7 +10,7 @@ import { onAuthStateChanged, signOut }
 import {
     ref, push, set, get, update, remove,
     onValue, serverTimestamp
-}
+}e
 from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
 
@@ -489,6 +489,44 @@ document.addEventListener("click", (event) => {
         !event.target.closest(".history-kebab")) {
         closeChatMenu();
     }
+});
+
+
+/* Delete chat from the kebab menu. */
+document.getElementById("deleteChatBtn").addEventListener("click", async (event) => {
+
+    event.stopPropagation();
+
+    const chatId = menuTargetChatId;
+    closeChatMenu();
+
+    if (!chatId) return;
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        await deleteChat(user.uid, chatId);
+    } catch (err) {
+        alert("Delete failed: " + err.message);
+        return;
+    }
+
+    /* If the deleted chat was the one on screen, reset the view. */
+    if (currentChatId === chatId) {
+        currentChatId = null;
+
+        messages.innerHTML = "";
+        messages.appendChild(welcome);
+        welcome.style.display = "flex";
+
+        chatTitle.textContent = "New conversation";
+
+        ThinkingUI.hide();
+    }
+
+    /* Sidebar updates itself via watchChats — no manual DOM removal. */
+
 });
 
 
