@@ -3,6 +3,7 @@
    ========================================================= */
 
 import { auth, db } from "./firebase.js";
+import { streamChat } from "./api.js";
 
 import { onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
@@ -162,15 +163,59 @@ async function sendMessage() {
         console.error("Failed to save user message:", err);
     }
 
-    const reply = await requestAssistantReply(text);
+    /* Build the history we send to the Worker.
+       Include this chat's prior messages + the new user text. */
+    let history = [];
+    try {
+        history = await loadMessages(user.uid, currentChatId);
+    } catch (err) {
+        console.error("Failed to load history:", err);
+    }
+
+    /* history already includes the just-saved user message. */
+
+    /* Create the assistant bubble up-front, then stream into it. */
+    const assistantEl = addMessage("", "assistant");
+
+    let replyText = "";
+
+    try {
+
+        await streamChat({
+            messages: history.map(m => ({ role: m.role, content: m.text })),
+            settings: {},
+            onEvent: (evt) => {
+
+                if (evt.type === "delta" && typeof evt.text === "string") {
+                    replyText += evt.text;
+                    assistantEl.querySelector(".message-content").textContent = replyText;
+                    scrollToBottom();
+                }
+
+                if (evt.type === "error") {
+                    console.error("Worker stream error:", evt);
+                }
+
+            }
+        });
+
+    } catch (err) {
+        console.error("streamChat failed:", err);
+        replyText = "Sorry — the assistant could not respond. " + err.message;
+        assistantEl.querySelector(".message-content").textContent = replyText;
+    }
 
     ThinkingUI.hide();
 
-    addMessage(reply, "assistant");
+    /* If nothing streamed, drop the empty bubble. */
+    if (!replyText) {
+        assistantEl.remove();
+        return;
+    }
 
     /* Persist assistant message. */
     try {
-        await saveMessage(user.uid, currentChatId, "assistant", reply);
+        await saveMessage(user.uid, currentChatId, "assistant", replyText);
     } catch (err) {
         console.error("Failed to save assistant message:", err);
     }
@@ -197,6 +242,8 @@ function addMessage(text, type) {
     messages.appendChild(message);
 
     scrollToBottom();
+
+    return message;
 
 }
 
@@ -595,20 +642,7 @@ chatHistory.addEventListener("click", async (event) => {
 
 });
 
-/* =========================================================
-   ASSISTANT REPLY — DEMO ONLY
-   ---------------------------------------------------------
-   Contract: (userText: string) => Promise<string>
-   Replace body with Cloudflare Worker call in Phase 8.
-   ========================================================= */
-
-async function requestAssistantReply(userText) {
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    return "This is a frontend demo response. Real AI intelligence can be connected later.";
-
-}
+/* (Removed — replies now come from the Worker via streamChat.) */
 
 
 /* =========================================================
