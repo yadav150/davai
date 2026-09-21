@@ -172,6 +172,17 @@ onAuthStateChanged(auth, (user) => {
 
     if (user) {
         window.location.replace("index.html");
+        return;
     }
 
+    markReady();
+
 });
+
+
+/* ---------- LOADER ---------- */
+
+function markReady() {
+    const loader = document.getElementById("pageLoader");
+    if (loader) loader.classList.add("is-hidden");
+}
