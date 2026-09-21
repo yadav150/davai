@@ -32,6 +32,12 @@ const PROFILE = {
 /* Currently active chat id. null until first message of a new chat. */
 let currentChatId = null;
 
+/* Unsubscribe handle for the live chats listener. */
+let chatsUnsub = null;
+
+/* Chat id targeted by the kebab menu. */
+let menuTargetChatId = null;
+
 
 /* ---------- DOM ---------- */
 
@@ -43,6 +49,7 @@ const typing       = document.getElementById("typing");
 
 const newChat      = document.getElementById("newChat");
 const chatHistory  = document.getElementById("chatHistory");
+const chatMenu     = document.getElementById("chatMenu");
 const chatTitle    = document.getElementById("chatTitle");
 
 const mobileMenu   = document.getElementById("mobileMenu");
@@ -291,12 +298,7 @@ function updateChatTitle(text) {
 
     chatTitle.textContent = title;
 
-    const existing = document.querySelector(".history-item.active");
-
-    if (existing) {
-        existing.textContent = title;
-    }
-
+    /* Sidebar title is driven by the DB listener (watchChats). */
 }
 
 
@@ -355,6 +357,100 @@ function openSettings() {
 function closeSettingsPanel() {
     settingsOverlay.classList.remove("show");
 }
+
+
+/* =========================================================
+   SIDEBAR — LIVE CHAT LIST
+   ========================================================= */
+
+function escapeHtml(s) {
+    return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+
+function renderChatList(list) {
+
+    chatHistory.innerHTML = "";
+
+    if (!list.length) return;
+
+    list.forEach((chat) => {
+
+        const item = document.createElement("div");
+
+        item.className = "history-item";
+        if (chat.id === currentChatId) item.classList.add("active");
+        item.dataset.id = chat.id;
+
+        const label = document.createElement("span");
+        label.className = "history-label";
+        label.textContent = chat.title || "New conversation";
+
+        const kebab = document.createElement("button");
+        kebab.className = "history-kebab";
+        kebab.type = "button";
+        kebab.dataset.id = chat.id;
+        kebab.textContent = "\u22EE"; /* vertical ellipsis */
+
+        item.appendChild(label);
+        item.appendChild(kebab);
+        chatHistory.appendChild(item);
+
+    });
+
+}
+
+
+/* Opens the small "Delete chat" menu near a kebab button. */
+function openChatMenu(kebabBtn, chatId) {
+
+    menuTargetChatId = chatId;
+
+    const rect = kebabBtn.getBoundingClientRect();
+
+    chatMenu.style.top  = (rect.bottom + 4) + "px";
+    chatMenu.style.left = Math.max(8, rect.right - 130) + "px";
+
+    chatMenu.classList.add("show");
+
+}
+
+
+function closeChatMenu() {
+    chatMenu.classList.remove("show");
+    menuTargetChatId = null;
+}
+
+
+/* Kebab clicks — stopPropagation so item click doesn't fire. */
+chatHistory.addEventListener("click", (event) => {
+
+    const kebab = event.target.closest(".history-kebab");
+
+    if (kebab) {
+        event.stopPropagation();
+        openChatMenu(kebab, kebab.dataset.id);
+        return;
+    }
+
+});
+
+
+/* Close menu on any outside click. */
+document.addEventListener("click", (event) => {
+    if (!chatMenu.contains(event.target) &&
+        !event.target.closest(".history-kebab")) {
+        closeChatMenu();
+    }
+});
+
+
+/* Close menu on scroll inside history (avoid stale position). */
+chatHistory.addEventListener("scroll", closeChatMenu, { passive: true });
 
 settingsButton.addEventListener("click", openSettings);
 profileButton.addEventListener("click", openSettings);
@@ -453,12 +549,17 @@ onAuthStateChanged(auth, (user) => {
 
     if (!user) {
         stopInactivityWatch();
+        if (chatsUnsub) { chatsUnsub(); chatsUnsub = null; }
         window.location.replace("login.html");
         return;
     }
 
     applyRealProfile(user);
     startInactivityWatch();
+
+    if (chatsUnsub) chatsUnsub();
+    chatsUnsub = watchChats(user.uid, renderChatList);
+
     markReady();
 
 });
