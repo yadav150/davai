@@ -2,10 +2,18 @@
    DAV AI — CHATBOT FRONTEND
    ========================================================= */
 
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import { onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+import { ref, get, set, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+
+
+/* Cloudinary — unsigned upload config. */
+const CLOUDINARY_CLOUD  = "xgkqlvgt";
+const CLOUDINARY_PRESET = "davai_hosting";
 
 
 /* Product name — single source of truth. */
@@ -45,6 +53,13 @@ const logoutModal    = document.getElementById("logoutModal");
 const cancelLogout   = document.getElementById("cancelLogout");
 const confirmLogout  = document.getElementById("confirmLogout");
 
+const avatarSmall     = document.getElementById("avatarSmall");
+const avatarLarge     = document.getElementById("avatarLarge");
+const avatarInput     = document.getElementById("avatarInput");
+const changePictureBtn= document.getElementById("changePictureBtn");
+const uploadOverlay   = document.getElementById("uploadOverlay");
+const uploadBar       = document.getElementById("uploadBar");
+const uploadLabel     = document.getElementById("uploadLabel");
 
 /* ---------- PRODUCT NAME + PROFILE APPLY ---------- */
 
@@ -452,6 +467,173 @@ function applyRealProfile(user) {
 
     document.getElementById("accountName").textContent  = name;
     document.getElementById("accountEmail").textContent = email;
+
+    // Load avatar from DB if it exists.
+    loadAvatarFromDB(user.uid);
+
+}
+
+
+/* =========================================================
+   AVATAR — CLOUDINARY UPLOAD + DB PERSISTENCE
+   ---------------------------------------------------------
+   DB path: users/{uid}/profile/photoURL
+   ========================================================= */
+
+function setAvatars(photoURL) {
+
+    if (!photoURL) return;
+
+    const html = `<img src="${photoURL}" alt="Profile">`;
+
+    avatarSmall.innerHTML = html;
+    avatarLarge.innerHTML = html;
+
+}
+
+
+async function loadAvatarFromDB(uid) {
+
+    try {
+        const snap = await get(ref(db, `users/${uid}/profile/photoURL`));
+
+        if (snap.exists()) {
+            setAvatars(snap.val());
+        }
+
+    } catch (err) {
+        console.warn("Avatar load failed:", err.message);
+    }
+
+}
+
+
+/* ---------- UPLOAD UI ---------- */
+
+function showUpload(state) {
+
+    if (state) {
+        uploadBar.style.width = "0%";
+        uploadLabel.textContent = "Uploading...";
+        uploadOverlay.classList.add("show");
+    } else {
+        uploadOverlay.classList.remove("show");
+    }
+
+}
+
+
+/* ---------- OPEN FILE PICKER ---------- */
+
+changePictureBtn.addEventListener("click", () => avatarInput.click());
+
+avatarLarge.addEventListener("click", () => avatarInput.click());
+
+avatarLarge.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        avatarInput.click();
+    }
+});
+
+
+/* ---------- ON FILE SELECTED ---------- */
+
+avatarInput.addEventListener("change", async () => {
+
+    const file = avatarInput.files && avatarInput.files[0];
+    avatarInput.value = "";
+    if (!file) return;
+
+    /* Basic guard — size + type. */
+    if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be under 5 MB.");
+        return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Not signed in.");
+        return;
+    }
+
+    showUpload(true);
+
+    try {
+
+        const url = await uploadToCloudinary(file, (pct) => {
+            uploadBar.style.width = pct + "%";
+        });
+
+        uploadLabel.textContent = "Saving...";
+        uploadBar.style.width = "100%";
+
+        await set(ref(db, `users/${user.uid}/profile/photoURL`), url);
+        await set(ref(db, `users/${user.uid}/profile/updatedAt`), serverTimestamp());
+
+        setAvatars(url);
+
+        setTimeout(() => showUpload(false), 300);
+
+    } catch (err) {
+        showUpload(false);
+        alert("Upload failed: " + err.message);
+    }
+
+});
+
+
+/* ---------- CLOUDINARY UPLOAD ---------- */
+
+function uploadToCloudinary(file, onProgress) {
+
+    return new Promise((resolve, reject) => {
+
+        const form = new FormData();
+
+        form.append("file", file);
+        form.append("upload_preset", CLOUDINARY_PRESET);
+        form.append("folder", "davai/avatars");
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.open(
+            "POST",
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`
+        );
+
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable && onProgress) {
+                const pct = Math.round((e.loaded / e.total) * 100);
+                onProgress(pct);
+            }
+        };
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    if (data.secure_url) {
+                        resolve(data.secure_url);
+                    } else {
+                        reject(new Error("No secure_url in response"));
+                    }
+                } catch (e) {
+                    reject(new Error("Invalid Cloudinary response"));
+                }
+            } else {
+                reject(new Error("Cloudinary HTTP " + xhr.status));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(form);
+
+    });
 
 }
 
