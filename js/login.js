@@ -12,28 +12,21 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInWithPopup,
-    onAuthStateChanged,
-    initializeRecaptchaConfig
+    onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 
-/* Initialize reCAPTCHA Enterprise config before any auth call.
-   Required on Firebase projects created after Sep 2023.
-   Missing this = 400 on every email/password sign-in. */
-await initializeRecaptchaConfig(auth);
-
-
 /* ---------- DOM ---------- */
 
-const form         = document.getElementById("authForm");
-const emailInput   = document.getElementById("emailInput");
-const passwordInput= document.getElementById("passwordInput");
-const submitBtn    = document.getElementById("submitBtn");
-const googleBtn    = document.getElementById("googleBtn");
-const errorBox     = document.getElementById("authError");
-const toggleBtn    = document.getElementById("toggleBtn");
-const toggleText   = document.getElementById("toggleText");
+const form          = document.getElementById("authForm");
+const emailInput    = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const submitBtn     = document.getElementById("submitBtn");
+const googleBtn     = document.getElementById("googleBtn");
+const errorBox      = document.getElementById("authError");
+const toggleBtn     = document.getElementById("toggleBtn");
+const toggleText    = document.getElementById("toggleText");
 
 
 /* ---------- MODE ---------- */
@@ -46,14 +39,14 @@ function setMode(next) {
     mode = next;
 
     if (mode === "signup") {
-        submitBtn.textContent = "Create account";
-        toggleText.textContent = "Already have an account?";
-        toggleBtn.textContent = "Sign in";
+        submitBtn.textContent   = "Create account";
+        toggleText.textContent  = "Already have an account?";
+        toggleBtn.textContent   = "Sign in";
         passwordInput.setAttribute("autocomplete", "new-password");
     } else {
-        submitBtn.textContent = "Sign in";
-        toggleText.textContent = "New to Dav AI?";
-        toggleBtn.textContent = "Create account";
+        submitBtn.textContent   = "Sign in";
+        toggleText.textContent  = "New to Dav AI?";
+        toggleBtn.textContent   = "Create account";
         passwordInput.setAttribute("autocomplete", "current-password");
     }
 
@@ -78,19 +71,19 @@ function clearError() {
 function prettyError(code) {
 
     const map = {
-        "auth/invalid-email":            "That email address looks invalid.",
-        "auth/user-disabled":            "This account has been disabled.",
-        "auth/user-not-found":           "No account found with that email.",
-        "auth/wrong-password":           "Incorrect password.",
-        "auth/invalid-credential":       "Incorrect email or password.",
-        "auth/email-already-in-use":     "An account already exists with that email.",
-        "auth/weak-password":            "Password must be at least 6 characters.",
-        "auth/popup-closed-by-user":     "Google sign-in was cancelled.",
-        "auth/popup-blocked":            "Popup was blocked. Allow popups and try again.",
-        "auth/network-request-failed":   "Network error. Check your connection.",
-        "auth/too-many-requests":        "Too many attempts. Try again later.",
-        "auth/operation-not-allowed":    "This sign-in method is not enabled.",
-        "auth/unauthorized-domain":      "This domain is not authorized in Firebase."
+        "auth/invalid-email":          "That email address looks invalid.",
+        "auth/user-disabled":          "This account has been disabled.",
+        "auth/user-not-found":         "No account found with that email.",
+        "auth/wrong-password":         "Incorrect password.",
+        "auth/invalid-credential":     "Incorrect email or password.",
+        "auth/email-already-in-use":   "An account already exists with that email.",
+        "auth/weak-password":          "Password must be at least 6 characters.",
+        "auth/popup-closed-by-user":   "Google sign-in was cancelled.",
+        "auth/popup-blocked":          "Popup was blocked. Allow popups and try again.",
+        "auth/network-request-failed": "Network error. Check your connection.",
+        "auth/too-many-requests":      "Too many attempts. Try again later.",
+        "auth/operation-not-allowed":  "This sign-in method is not enabled.",
+        "auth/unauthorized-domain":    "This domain is not authorized in Firebase."
     };
 
     return map[code] || "Sign-in failed. Please try again.";
@@ -101,10 +94,18 @@ function prettyError(code) {
 /* ---------- LOADING ---------- */
 
 function setLoading(state) {
-    submitBtn.disabled = state;
-    googleBtn.disabled = state;
-    emailInput.disabled = state;
+    submitBtn.disabled     = state;
+    googleBtn.disabled     = state;
+    emailInput.disabled    = state;
     passwordInput.disabled = state;
+}
+
+
+/* ---------- LOADER ---------- */
+
+function markReady() {
+    const loader = document.getElementById("pageLoader");
+    if (loader) loader.classList.add("is-hidden");
 }
 
 
@@ -133,7 +134,7 @@ form.addEventListener("submit", async (event) => {
             await signInWithEmailAndPassword(auth, email, password);
         }
 
-        // onAuthStateChanged will handle the redirect.
+        // onAuthStateChanged handles the redirect.
 
     } catch (err) {
         setLoading(false);
@@ -154,7 +155,7 @@ googleBtn.addEventListener("click", async () => {
 
         await signInWithPopup(auth, googleProvider);
 
-        // onAuthStateChanged will handle the redirect.
+        // onAuthStateChanged handles the redirect.
 
     } catch (err) {
         setLoading(false);
@@ -185,11 +186,3 @@ onAuthStateChanged(auth, (user) => {
     markReady();
 
 });
-
-
-/* ---------- LOADER ---------- */
-
-function markReady() {
-    const loader = document.getElementById("pageLoader");
-    if (loader) loader.classList.add("is-hidden");
-}
