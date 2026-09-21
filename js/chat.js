@@ -7,8 +7,11 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
-import { ref, get, set, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+import {
+    ref, push, set, get, update, remove,
+    onValue, serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
 
 /* Cloudinary — unsigned upload config. */
@@ -635,6 +638,138 @@ function uploadToCloudinary(file, onProgress) {
 
     });
 
+}
+
+
+/* =========================================================
+   CHAT DB HELPERS
+   ---------------------------------------------------------
+   Paths:
+       users/{uid}/chats/{chatId}/meta
+       users/{uid}/chats/{chatId}/messages/{msgId}
+
+   DB-only. No UI. UI wiring is done by callers (6b–6f).
+   ========================================================= */
+
+function chatsRoot(uid) {
+    return ref(db, `users/${uid}/chats`);
+}
+
+function chatMetaRef(uid, chatId) {
+    return ref(db, `users/${uid}/chats/${chatId}/meta`);
+}
+
+function chatMessagesRef(uid, chatId) {
+    return ref(db, `users/${uid}/chats/${chatId}/messages`);
+}
+
+
+/* Create a new empty chat. Returns the new chatId. */
+async function createChat(uid) {
+
+    const idRef  = push(chatsRoot(uid));
+    const chatId = idRef.key;
+
+    await set(chatMetaRef(uid, chatId), {
+        title:        "",
+        createdAt:    serverTimestamp(),
+        updatedAt:    serverTimestamp(),
+        messageCount: 0
+    });
+
+    return chatId;
+
+}
+
+
+/* Save one message. Also updates meta (title + updatedAt + count). */
+async function saveMessage(uid, chatId, role, text) {
+
+    const msgRef = push(chatMessagesRef(uid, chatId));
+
+    await set(msgRef, {
+        role,
+        text,
+        ts: serverTimestamp()
+    });
+
+    const metaSnap = await get(chatMetaRef(uid, chatId));
+    const meta     = metaSnap.val() || {};
+
+    const updates = {
+        updatedAt:    serverTimestamp(),
+        messageCount: (meta.messageCount || 0) + 1
+    };
+
+    /* First user message sets the title. */
+    if (role === "user" && !meta.title) {
+        updates.title =
+            text.length > 40 ? text.slice(0, 40) + "..." : text;
+    }
+
+    await update(chatMetaRef(uid, chatId), updates);
+
+}
+
+
+/* Load all messages of a chat, sorted by ts ascending. */
+async function loadMessages(uid, chatId) {
+
+    const snap = await get(chatMessagesRef(uid, chatId));
+    const out  = [];
+
+    snap.forEach((c) => {
+        const v = c.val();
+        out.push({
+            id:   c.key,
+            role: v.role,
+            text: v.text,
+            ts:   v.ts || 0
+        });
+    });
+
+    out.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+    return out;
+
+}
+
+
+/* Live listener over the user's chats.
+   Callback receives an array sorted by updatedAt desc.
+   Returns an unsubscribe function. */
+function watchChats(uid, callback) {
+
+    const unsub = onValue(chatsRoot(uid), (snap) => {
+
+        const list = [];
+
+        snap.forEach((c) => {
+            const v    = c.val() || {};
+            const meta = v.meta || {};
+            list.push({
+                id:           c.key,
+                title:        meta.title || "New conversation",
+                createdAt:    meta.createdAt || 0,
+                updatedAt:    meta.updatedAt || 0,
+                messageCount: meta.messageCount || 0
+            });
+        });
+
+        list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+        callback(list);
+
+    });
+
+    return unsub;
+
+}
+
+
+/* Delete one chat entirely. */
+async function deleteChat(uid, chatId) {
+    await remove(ref(db, `users/${uid}/chats/${chatId}`));
 }
 
 
