@@ -302,6 +302,49 @@ function updateChatTitle(text) {
 }
 
 
+/* =========================================================
+   LOAD CHAT INTO VIEW
+   ---------------------------------------------------------
+   Reads messages from DB and renders them.
+   ========================================================= */
+
+async function loadChatIntoView(uid, chatId) {
+
+    currentChatId = chatId;
+
+    ThinkingUI.hide();
+
+    messages.innerHTML = "";
+
+    let list = [];
+    try {
+        list = await loadMessages(uid, chatId);
+    } catch (err) {
+        console.error("loadMessages failed:", err);
+    }
+
+    if (!list.length) {
+        messages.appendChild(welcome);
+        welcome.style.display = "flex";
+        chatTitle.textContent = "New conversation";
+        return;
+    }
+
+    welcome.style.display = "none";
+
+    list.forEach((m) => {
+        addMessage(m.text, m.role);
+    });
+
+    const firstUser = list.find(m => m.role === "user");
+    if (firstUser) {
+        const t = firstUser.text;
+        chatTitle.textContent = t.length > 30 ? t.slice(0, 30) + "..." : t;
+    }
+
+}
+
+
 /* ---------- NEW CHAT ---------- */
 
 newChat.addEventListener("click", () => {
@@ -488,25 +531,31 @@ confirmLogout.addEventListener("click", () => {
 });
 
 
-/* ---------- HISTORY ---------- */
+/* ---------- HISTORY CLICK (loads chat from DB) ---------- */
 
-chatHistory.addEventListener("click", (event) => {
+chatHistory.addEventListener("click", async (event) => {
 
-    if (event.target.classList.contains("history-item")) {
+    if (event.target.closest(".history-kebab")) return;
 
-        document.querySelectorAll(".history-item")
-            .forEach(item => item.classList.remove("active"));
+    const item = event.target.closest(".history-item");
+    if (!item) return;
 
-        event.target.classList.add("active");
+    const chatId = item.dataset.id;
+    if (!chatId) return;
 
-        chatTitle.textContent = event.target.textContent;
+    const user = auth.currentUser;
+    if (!user) return;
 
-        sidebar.classList.remove("open");
+    document.querySelectorAll(".history-item")
+        .forEach(el => el.classList.remove("active"));
 
-    }
+    item.classList.add("active");
+
+    sidebar.classList.remove("open");
+
+    await loadChatIntoView(user.uid, chatId);
 
 });
-
 
 /* =========================================================
    ASSISTANT REPLY — DEMO ONLY
