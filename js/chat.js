@@ -498,7 +498,7 @@ function applyRealProfile(user) {
    thrash the timer.
    ========================================================= */
 
-const INACTIVITY_MS = 5 * 60 * 1000;
+const INACTIVITY_MS = 10 * 1000;
 
 let inactivityTimer = null;
 let lastReset = 0;
