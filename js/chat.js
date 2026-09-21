@@ -451,8 +451,17 @@ onAuthStateChanged(auth, (user) => {
 
     applyRealProfile(user);
     startInactivityWatch();
+    markReady();
 
 });
+
+
+/* ---------- LOADER ---------- */
+
+function markReady() {
+    const loader = document.getElementById("pageLoader");
+    if (loader) loader.classList.add("is-hidden");
+}
 
 
 function applyRealProfile(user) {
