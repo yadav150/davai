@@ -214,3 +214,39 @@ body {
         font-size: 22px;
     }
 }
+
+/* UNIVERSAL LOADER */
+
+#pageLoader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(245, 245, 245, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.28s ease;
+    pointer-events: all;
+}
+
+#pageLoader.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loader-spinner {
+    width: 52px;
+    height: 52px;
+    border: 6px solid rgba(23, 23, 23, 0.15);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: loaderSpin 0.7s linear infinite;
+}
+
+@keyframes loaderSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
