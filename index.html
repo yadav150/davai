@@ -169,7 +169,7 @@
 
             <div class="profile-card">
 
-                <div class="large-avatar" id="avatarLarge">
+                <div class="large-avatar" id="avatarLarge" role="button" tabindex="0">
                     YS
                 </div>
 
@@ -183,7 +183,18 @@
                         user@example.com
                     </p>
 
+                    <button class="change-picture-btn" id="changePictureBtn" type="button">
+                        Change picture
+                    </button>
+
                 </div>
+
+                <input
+                    type="file"
+                    id="avatarInput"
+                    accept="image/png,image/jpeg,image/webp"
+                    hidden
+                >
 
             </div>
 
