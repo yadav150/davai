@@ -11,10 +11,10 @@ import { onAuthStateChanged, signOut }
 /* Product name — single source of truth. */
 const PRODUCT_NAME = "Dav AI";
 
-/* Placeholder profile — replaced by Firebase Auth + Cloudinary later. */
+/* Placeholder profile — overwritten by applyRealProfile() on auth. */
 const PROFILE = {
-    name: "User",
-    email: "user@example.com",
+    name:     "User",
+    email:    "user@example.com",
     initials: "YS"
 };
 
@@ -22,28 +22,28 @@ const PROFILE = {
 /* ---------- DOM ---------- */
 
 const messageInput = document.getElementById("messageInput");
-const sendButton = document.getElementById("sendButton");
-const messages = document.getElementById("messages");
-const welcome = document.getElementById("welcome");
-const typing = document.getElementById("typing");
+const sendButton   = document.getElementById("sendButton");
+const messages     = document.getElementById("messages");
+const welcome      = document.getElementById("welcome");
+const typing       = document.getElementById("typing");
 
-const newChat = document.getElementById("newChat");
-const chatHistory = document.getElementById("chatHistory");
-const chatTitle = document.getElementById("chatTitle");
+const newChat      = document.getElementById("newChat");
+const chatHistory  = document.getElementById("chatHistory");
+const chatTitle    = document.getElementById("chatTitle");
 
-const mobileMenu = document.getElementById("mobileMenu");
-const sidebar = document.getElementById("sidebar");
+const mobileMenu   = document.getElementById("mobileMenu");
+const sidebar      = document.getElementById("sidebar");
 
 const settingsButton = document.getElementById("settingsButton");
-const profileButton = document.getElementById("profileButton");
+const profileButton  = document.getElementById("profileButton");
 
 const settingsOverlay = document.getElementById("settingsOverlay");
-const closeSettings = document.getElementById("closeSettings");
+const closeSettings   = document.getElementById("closeSettings");
 
-const logoutButton = document.getElementById("logoutButton");
-const logoutModal = document.getElementById("logoutModal");
-const cancelLogout = document.getElementById("cancelLogout");
-const confirmLogout = document.getElementById("confirmLogout");
+const logoutButton   = document.getElementById("logoutButton");
+const logoutModal    = document.getElementById("logoutModal");
+const cancelLogout   = document.getElementById("cancelLogout");
+const confirmLogout  = document.getElementById("confirmLogout");
 
 
 /* ---------- PRODUCT NAME + PROFILE APPLY ---------- */
@@ -54,13 +54,13 @@ document.getElementById("brand").textContent = PRODUCT_NAME;
 document.getElementById("avatarSmall").textContent = PROFILE.initials;
 document.getElementById("avatarLarge").textContent = PROFILE.initials;
 
-document.getElementById("profileNameSmall").textContent = PROFILE.name;
+document.getElementById("profileNameSmall").textContent  = PROFILE.name;
 document.getElementById("profileEmailSmall").textContent = PROFILE.email;
 
-document.getElementById("profileNameLarge").textContent = PROFILE.name;
+document.getElementById("profileNameLarge").textContent  = PROFILE.name;
 document.getElementById("profileEmailLarge").textContent = PROFILE.email;
 
-document.getElementById("accountName").textContent = PROFILE.name;
+document.getElementById("accountName").textContent  = PROFILE.name;
 document.getElementById("accountEmail").textContent = PROFILE.email;
 
 
@@ -109,7 +109,7 @@ async function sendMessage() {
 
     welcome.style.display = "none";
 
-    addMessage(text, "User");
+    addMessage(text, "user");
 
     messageInput.value = "";
 
@@ -119,13 +119,13 @@ async function sendMessage() {
 
     updateChatTitle(text);
 
-    ThinkingUI.show("Thinking");
+    ThinkingUI.show("thinking");
 
     const reply = await requestAssistantReply(text);
 
     ThinkingUI.hide();
 
-    addMessage(reply, "Assistant");
+    addMessage(reply, "assistant");
 
 }
 
@@ -156,20 +156,17 @@ function addMessage(text, type) {
 /* =========================================================
    THINKING UI
    ---------------------------------------------------------
-   Public API (stable — do NOT rename):
-       ThinkingUI.show(key?)       // show indicator
-       ThinkingUI.hide()           // hide indicator
-       ThinkingUI.setState(key)    // transition to a state
+   Public API:
+       ThinkingUI.show(key?)
+       ThinkingUI.hide()
+       ThinkingUI.setState(key)
 
-   States (keys):
+   States:
        thinking | understanding | analyzing |
        researching | checking | comparing | preparing
 
-   Source of state changes:
-       Phase 1 (now)   : static — "thinking" only.
-       Phase 8 (later) : driven by SSE events from the
-                         Cloudflare Worker. No DOM rewrite
-                         needed — same public API.
+   Phase 1  : static — "thinking" only.
+   Phase 8  : driven by SSE events from Cloudflare Worker.
    ========================================================= */
 
 const ThinkingUI = (() => {
@@ -228,8 +225,7 @@ const ThinkingUI = (() => {
 
 function scrollToBottom() {
 
-    const chatArea =
-        document.getElementById("chatArea");
+    const chatArea = document.getElementById("chatArea");
 
     setTimeout(() => {
 
@@ -254,8 +250,7 @@ function updateChatTitle(text) {
 
     chatTitle.textContent = title;
 
-    const existing =
-        document.querySelector(".history-item.active");
+    const existing = document.querySelector(".history-item.active");
 
     if (existing) {
         existing.textContent = title;
@@ -285,8 +280,7 @@ newChat.addEventListener("click", () => {
     document.querySelectorAll(".history-item")
         .forEach(item => item.classList.remove("active"));
 
-    const item =
-        document.createElement("div");
+    const item = document.createElement("div");
 
     item.className = "history-item active";
 
@@ -311,37 +305,17 @@ mobileMenu.addEventListener("click", () => {
 /* ---------- SETTINGS ---------- */
 
 function openSettings() {
-
     settingsOverlay.classList.add("show");
-
     sidebar.classList.remove("open");
-
 }
-
 
 function closeSettingsPanel() {
-
     settingsOverlay.classList.remove("show");
-
 }
 
-
-settingsButton.addEventListener(
-    "click",
-    openSettings
-);
-
-
-profileButton.addEventListener(
-    "click",
-    openSettings
-);
-
-
-closeSettings.addEventListener(
-    "click",
-    closeSettingsPanel
-);
+settingsButton.addEventListener("click", openSettings);
+profileButton.addEventListener("click", openSettings);
+closeSettings.addEventListener("click", closeSettingsPanel);
 
 
 /* ---------- CLICK OUTSIDE SETTINGS ---------- */
@@ -358,23 +332,16 @@ settingsOverlay.addEventListener("click", (event) => {
 /* ---------- LOGOUT ---------- */
 
 logoutButton.addEventListener("click", () => {
-
     logoutModal.classList.add("show");
-
 });
-
 
 cancelLogout.addEventListener("click", () => {
-
     logoutModal.classList.remove("show");
-
 });
-
 
 confirmLogout.addEventListener("click", () => {
 
     logoutModal.classList.remove("show");
-
     settingsOverlay.classList.remove("show");
 
     handleLogout();
@@ -386,19 +353,14 @@ confirmLogout.addEventListener("click", () => {
 
 chatHistory.addEventListener("click", (event) => {
 
-    if (
-        event.target.classList.contains("history-item")
-    ) {
+    if (event.target.classList.contains("history-item")) {
 
         document.querySelectorAll(".history-item")
-            .forEach(item =>
-                item.classList.remove("active")
-            );
+            .forEach(item => item.classList.remove("active"));
 
         event.target.classList.add("active");
 
-        chatTitle.textContent =
-            event.target.textContent;
+        chatTitle.textContent = event.target.textContent;
 
         sidebar.classList.remove("open");
 
@@ -411,7 +373,7 @@ chatHistory.addEventListener("click", (event) => {
    ASSISTANT REPLY — DEMO ONLY
    ---------------------------------------------------------
    Contract: (userText: string) => Promise<string>
-   Replace body with Groq call later. Nothing else changes.
+   Replace body with Cloudflare Worker call in Phase 8.
    ========================================================= */
 
 async function requestAssistantReply(userText) {
@@ -424,9 +386,7 @@ async function requestAssistantReply(userText) {
 
 
 /* =========================================================
-   LOGOUT — DEMO ONLY
-   ---------------------------------------------------------
-   Replace with Firebase signOut later.
+   LOGOUT
    ========================================================= */
 
 async function handleLogout() {
@@ -441,6 +401,11 @@ async function handleLogout() {
 
 }
 
+
+/* =========================================================
+   AUTH GUARD
+   ========================================================= */
+
 onAuthStateChanged(auth, (user) => {
 
     if (!user) {
@@ -454,14 +419,6 @@ onAuthStateChanged(auth, (user) => {
     markReady();
 
 });
-
-
-/* ---------- LOADER ---------- */
-
-function markReady() {
-    const loader = document.getElementById("pageLoader");
-    if (loader) loader.classList.add("is-hidden");
-}
 
 
 function applyRealProfile(user) {
@@ -480,31 +437,35 @@ function applyRealProfile(user) {
             .map(w => w[0].toUpperCase())
             .join("") || "U";
 
-    PROFILE.name = name;
-    PROFILE.email = email;
+    PROFILE.name     = name;
+    PROFILE.email    = email;
     PROFILE.initials = initials;
 
     document.getElementById("avatarSmall").textContent = initials;
     document.getElementById("avatarLarge").textContent = initials;
 
-    document.getElementById("profileNameSmall").textContent = name;
+    document.getElementById("profileNameSmall").textContent  = name;
     document.getElementById("profileEmailSmall").textContent = email;
 
-    document.getElementById("profileNameLarge").textContent = name;
+    document.getElementById("profileNameLarge").textContent  = name;
     document.getElementById("profileEmailLarge").textContent = email;
 
-    document.getElementById("accountName").textContent = name;
+    document.getElementById("accountName").textContent  = name;
     document.getElementById("accountEmail").textContent = email;
 
 }
 
 
+/* ---------- LOADER ---------- */
+
+function markReady() {
+    const loader = document.getElementById("pageLoader");
+    if (loader) loader.classList.add("is-hidden");
+}
+
+
 /* =========================================================
-   INACTIVITY AUTO-LOGOUT
-   ---------------------------------------------------------
-   5 minutes of no user activity → sign out → redirect.
-   Activity events are throttled so mousemove does not
-   thrash the timer.
+   INACTIVITY AUTO-LOGOUT — 5 minutes
    ========================================================= */
 
 const INACTIVITY_MS = 5 * 60 * 1000;
@@ -526,7 +487,6 @@ function resetInactivityTimer() {
 
     const now = Date.now();
 
-    /* Throttle: ignore events fired within 1s of last reset. */
     if (now - lastReset < 1000) return;
     lastReset = now;
 
