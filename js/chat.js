@@ -29,6 +29,9 @@ const PROFILE = {
     initials: "YS"
 };
 
+/* Currently active chat id. null until first message of a new chat. */
+let currentChatId = null;
+
 
 /* ---------- DOM ---------- */
 
@@ -125,6 +128,9 @@ async function sendMessage() {
 
     if (!text) return;
 
+    const user = auth.currentUser;
+    if (!user) return;
+
     welcome.style.display = "none";
 
     addMessage(text, "user");
@@ -139,11 +145,28 @@ async function sendMessage() {
 
     ThinkingUI.show("thinking");
 
+    /* Ensure a chat exists, then persist the user message. */
+    try {
+        if (!currentChatId) {
+            currentChatId = await createChat(user.uid);
+        }
+        await saveMessage(user.uid, currentChatId, "user", text);
+    } catch (err) {
+        console.error("Failed to save user message:", err);
+    }
+
     const reply = await requestAssistantReply(text);
 
     ThinkingUI.hide();
 
     addMessage(reply, "assistant");
+
+    /* Persist assistant message. */
+    try {
+        await saveMessage(user.uid, currentChatId, "assistant", reply);
+    } catch (err) {
+        console.error("Failed to save assistant message:", err);
+    }
 
 }
 
@@ -280,6 +303,8 @@ function updateChatTitle(text) {
 /* ---------- NEW CHAT ---------- */
 
 newChat.addEventListener("click", () => {
+
+    currentChatId = null;
 
     messages.innerHTML = "";
 
